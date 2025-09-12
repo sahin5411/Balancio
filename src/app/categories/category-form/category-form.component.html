@@ -1,0 +1,116 @@
+<div class="bg-gray-50 min-h-screen">
+  <div class="max-w-2xl mx-auto p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Create Category</h1>
+      <p class="text-gray-600">Add a new category to organize your transactions</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <form (ngSubmit)="onSubmit()" #categoryForm="ngForm">
+        <!-- Category Name -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Category Name</label>
+          <input
+            type="text"
+            [(ngModel)]="category.name"
+            name="name"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter category name">
+        </div>
+
+        <!-- Category Type -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+          <div class="flex space-x-4">
+            <label class="flex items-center">
+              <input
+                type="radio"
+                [(ngModel)]="category.type"
+                name="type"
+                value="expense"
+                class="mr-2 text-blue-600">
+              <span class="text-sm text-gray-700">Expense</span>
+            </label>
+            <label class="flex items-center">
+              <input
+                type="radio"
+                [(ngModel)]="category.type"
+                name="type"
+                value="income"
+                class="mr-2 text-blue-600">
+              <span class="text-sm text-gray-700">Income</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Icon Selection -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+          <div class="grid grid-cols-5 gap-3">
+            <button
+              *ngFor="let icon of icons"
+              type="button"
+              (click)="category.icon = icon"
+              [class.ring-2]="category.icon === icon"
+              [class.ring-blue-500]="category.icon === icon"
+              class="w-12 h-12 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
+              <span class="material-icons text-gray-600">{{ icon }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Color Selection -->
+        <div class="mb-8">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+          <div class="flex space-x-3">
+            <button
+              *ngFor="let color of colors"
+              type="button"
+              (click)="category.color = color"
+              [class.ring-2]="category.color === color"
+              [class.ring-offset-2]="category.color === color"
+              class="w-8 h-8 rounded-full border border-gray-200 transition-all"
+              [style.background-color]="color"
+              [style.ring-color]="color">
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="mb-8 p-4 bg-gray-50 rounded-lg">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Preview</label>
+          <div class="flex items-center space-x-3">
+            <div 
+              class="w-10 h-10 rounded-lg flex items-center justify-center"
+              [style.background-color]="category.color + '20'">
+              <span class="material-icons" [style.color]="category.color">{{ category.icon }}</span>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900">{{ category.name || 'Category Name' }}</h3>
+              <span class="text-sm text-gray-500 capitalize">{{ category.type }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex space-x-3">
+          <button
+            type="button"
+            (click)="cancel()"
+            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="!categoryForm.valid"
+            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            Create Category
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+    <p class="text-gray-600">Overview of your financial status</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <app-income-card [amount]="totalIncome"></app-income-card>
+    <app-expense-card [amount]="totalExpenses"></app-expense-card>
+    <app-balance-card [amount]="balance"></app-balance-card>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Expense Breakdown Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
+      <app-expense-chart [transactions]="transactions"></app-expense-chart>
+    </div>
+
+    <!-- Income vs Expenses Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Income vs Expenses</h3>
+      <app-income-expense-bar-chart [transactions]="transactions"></app-income-expense-bar-chart>
+    </div>
+  </div>
+
+  <!-- Recent Transactions -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">Recent Transactions</h3>
+    </div>
+    <div class="p-6">
+      <div *ngIf="transactions.length === 0" class="text-center text-gray-500 py-8">
+        No transactions found
+      </div>
+      <div *ngIf="transactions.length > 0" class="space-y-4">
+        <div *ngFor="let transaction of transactions.slice(0, 5)" 
+             class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                 [class.bg-green-100]="transaction.type === 'income'"
+                 [class.bg-red-100]="transaction.type === 'expense'">
+              <span class="material-icons text-sm"
+                    [class.text-green-600]="transaction.type === 'income'"
+                    [class.text-red-600]="transaction.type === 'expense'">
+                {{ transaction.type === 'income' ? 'arrow_upward' : 'arrow_downward' }}
+              </span>
+            </div>
+            <div class="ml-4">
+              <p class="font-medium text-gray-900">{{ transaction.description }}</p>
+              <p class="text-sm text-gray-500">{{ transaction.date | date }}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-semibold"
+               [class.text-green-600]="transaction.type === 'income'"
+               [class.text-red-600]="transaction.type === 'expense'">
+              {{ transaction.type === 'income' ? '+' : '-' }}${{ transaction.amount }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

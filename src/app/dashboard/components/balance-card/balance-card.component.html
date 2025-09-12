@@ -1,0 +1,27 @@
+<div class="bg-white rounded-lg shadow p-6">
+  <div class="flex items-center">
+    <div class="flex-shrink-0">
+      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+        <span class="material-icons text-blue-600">account_balance_wallet</span>
+      </div>
+    </div>
+    <div class="ml-4">
+      <p class="text-sm font-medium text-gray-500">Current Balance</p>
+      <p class="text-2xl font-bold"
+         [class.text-green-600]="amount >= 0"
+         [class.text-red-600]="amount < 0">
+        ${{ amount | number:'1.2-2' }}
+      </p>
+    </div>
+  </div>
+  <div class="mt-4">
+    <div class="flex items-center text-sm"
+         [class.text-green-600]="amount >= 0"
+         [class.text-red-600]="amount < 0">
+      <span class="material-icons text-xs mr-1">
+        {{ amount >= 0 ? 'arrow_upward' : 'arrow_downward' }}
+      </span>
+      <span>{{ amount >= 0 ? 'Positive' : 'Negative' }} balance</span>
+    </div>
+  </div>
+</div>
