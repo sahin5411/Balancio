@@ -6,7 +6,9 @@ import { BalanceCardComponent } from './components/balance-card/balance-card.com
 import { ExpenseChartComponent } from './components/expense-chart/expense-chart.component';
 import { IncomeExpenseBarChartComponent } from './components/income-expense-bar-chart/income-expense-bar-chart.component';
 import { TransactionService } from '../shared/services/transaction.service';
+import { CurrencyService } from '../shared/services/currency.service';
 import { Transaction } from '../shared/models/transaction.model';
+import { LoaderComponent } from '../shared/components/loader/loader.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,7 +19,8 @@ import { Transaction } from '../shared/models/transaction.model';
     ExpenseCardComponent,
     BalanceCardComponent,
     ExpenseChartComponent,
-    IncomeExpenseBarChartComponent
+    IncomeExpenseBarChartComponent,
+    LoaderComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
@@ -27,17 +30,33 @@ export class DashboardComponent implements OnInit {
   totalIncome = 0;
   totalExpenses = 0;
   balance = 0;
+  currencySymbol = '$';
+  isLoading = false;
 
-  constructor(private transactionService: TransactionService) {}
+  constructor(
+    private transactionService: TransactionService,
+    private currencyService: CurrencyService
+  ) {}
 
   ngOnInit() {
+    this.currencySymbol = this.currencyService.getCurrentCurrency().symbol;
     this.loadTransactions();
   }
 
   loadTransactions() {
-    this.transactionService.getTransactions().subscribe(transactions => {
-      this.transactions = transactions;
-      this.calculateTotals();
+    this.isLoading = true;
+    this.transactionService.getTransactions().subscribe({
+      next: (transactions) => {
+        this.transactions = transactions;
+        this.calculateTotals();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading transactions:', error);
+        this.transactions = [];
+        this.calculateTotals();
+        this.isLoading = false;
+      }
     });
   }
 

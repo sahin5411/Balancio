@@ -1,124 +1,118 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
+import { ApiService } from './api.service';
+import { NotificationService } from './notification.service';
 import { Transaction } from '../models/transaction.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransactionService {
-  private mockTransactions: any[] = [
-    {
-      id: '1',
-      amount: 5000,
-      type: 'income',
-      categoryId: '1',
-      description: 'Salary',
-      date: new Date('2024-01-15'),
-      userId: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '2',
-      amount: 1200,
-      type: 'expense',
-      categoryId: '1',
-      description: 'Groceries',
-      date: new Date('2024-01-01'),
-      userId: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '3',
-      amount: 800,
-      type: 'expense',
-      categoryId: '2',
-      description: 'Gas',
-      date: new Date('2024-01-02'),
-      userId: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '4',
-      amount: 450,
-      type: 'expense',
-      categoryId: '3',
-      description: 'Clothes',
-      date: new Date('2024-01-03'),
-      userId: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '5',
-      amount: 200,
-      type: 'expense',
-      categoryId: '4',
-      description: 'Movie',
-      date: new Date('2024-01-04'),
-      userId: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '6',
-      amount: 150,
-      type: 'expense',
-      categoryId: '5',
-      description: 'Electric Bill',
-      date: new Date('2024-01-05'),
-      userId: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '7',
-      amount: 300,
-      type: 'expense',
-      categoryId: '6',
-      description: 'Doctor Visit',
-      date: new Date('2024-01-06'),
-      userId: '1',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
+  constructor(
+    private apiService: ApiService,
+    private notificationService: NotificationService
+  ) {}
 
   getTransactions(): Observable<Transaction[]> {
-    return of(this.mockTransactions);
+    return this.apiService.get<any[]>('transactions').pipe(
+      map(transactions => transactions.map(t => ({
+        id: t._id,
+        amount: t.amount,
+        title: t.title || '',
+        type: t.type,
+        categoryId: t.categoryId,
+        description: t.description || '',
+        date: new Date(t.date),
+        userId: t.userId,
+        createdAt: new Date(t.createdAt),
+        updatedAt: new Date(t.updatedAt)
+      })))
+    );
   }
 
-  getTransaction(id: string): Observable<Transaction | undefined> {
-    return of(this.mockTransactions.find(t => t.id === id));
+  getTransaction(id: string): Observable<Transaction> {
+    return this.apiService.get<any>(`transactions/${id}`).pipe(
+      map(t => ({
+        id: t._id,
+        amount: t.amount,
+        title: t.title || '',
+        type: t.type,
+        categoryId: t.categoryId,
+        description: t.description || '',
+        date: new Date(t.date),
+        userId: t.userId,
+        createdAt: new Date(t.createdAt),
+        updatedAt: new Date(t.updatedAt)
+      }))
+    );
   }
 
   createTransaction(transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>): Observable<Transaction> {
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date()
+    const payload = {
+      title: transaction.title,
+      amount: transaction.amount,
+      type: transaction.type,
+      categoryId: transaction.categoryId,
+      description: transaction.description,
+      date: transaction.date
     };
-    this.mockTransactions.push(newTransaction);
-    return of(newTransaction);
+    return this.apiService.post<any>('transactions', payload).pipe(
+      map(t => ({
+        id: t._id,
+        amount: t.amount,
+        title: t.title || '',
+        type: t.type,
+        categoryId: t.categoryId,
+        description: t.description || '',
+        date: new Date(t.date),
+        userId: t.userId,
+        createdAt: new Date(t.createdAt),
+        updatedAt: new Date(t.updatedAt)
+      })),
+      tap(t => {
+        this.notificationService.addNotification({
+          title: `${t.type === 'income' ? 'Income' : 'Expense'} Added`,
+          message: `${t.title} - $${t.amount}`,
+          type: t.type === 'income' ? 'success' : 'info'
+        });
+      })
+    );
   }
 
   updateTransaction(id: string, transaction: Partial<Transaction>): Observable<Transaction> {
-    const index = this.mockTransactions.findIndex(t => t.id === id);
-    if (index !== -1) {
-      this.mockTransactions[index] = { ...this.mockTransactions[index], ...transaction, updatedAt: new Date() };
-      return of(this.mockTransactions[index]);
-    }
-    throw new Error('Transaction not found');
+    const payload = {
+      ...(transaction.title && { title: transaction.title }),
+      ...(transaction.amount && { amount: transaction.amount }),
+      ...(transaction.type && { type: transaction.type }),
+      ...(transaction.categoryId && { categoryId: transaction.categoryId }),
+      ...(transaction.description && { description: transaction.description }),
+      ...(transaction.date && { date: transaction.date })
+    };
+    return this.apiService.put<any>(`transactions/${id}`, payload).pipe(
+      map(t => ({
+        id: t._id,
+        amount: t.amount,
+        title: t.title || '',
+        type: t.type,
+        categoryId: t.categoryId,
+        description: t.description || '',
+        date: new Date(t.date),
+        userId: t.userId,
+        createdAt: new Date(t.createdAt),
+        updatedAt: new Date(t.updatedAt)
+      }))
+    );
   }
 
   deleteTransaction(id: string): Observable<void> {
-    const index = this.mockTransactions.findIndex(t => t.id === id);
-    if (index !== -1) {
-      this.mockTransactions.splice(index, 1);
-    }
-    return of();
+    return this.apiService.delete<void>(`transactions/${id}`).pipe(
+      tap(() => {
+        this.notificationService.addNotification({
+          title: 'Transaction Deleted',
+          message: 'Transaction has been successfully removed',
+          type: 'info'
+        });
+      })
+    );
   }
 }

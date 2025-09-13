@@ -10,4 +10,5 @@ import { CommonModule } from '@angular/common';
 })
 export class IncomeCardComponent {
   @Input() amount: number = 0;
+  @Input() currencySymbol: string = '$';
 }

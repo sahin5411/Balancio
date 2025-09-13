@@ -1,0 +1,47 @@
+{
+  "name": "Balancio - Personal Finance Manager",
+  "short_name": "Balancio",
+  "description": "Track your expenses, manage budgets, and achieve your financial goals with Balancio - your personal finance companion.",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "categories": [
+    "finance",
+    "productivity",
+    "business"
+  ],
+  "icons": [
+    {
+      "src": "icons/Square44x44Logo.targetsize-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/Square44x44Logo.targetsize-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/Square44x44Logo.targetsize-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/Square150x150Logo.scale-100.png",
+      "sizes": "150x150",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/Square44x44Logo.targetsize-256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}

@@ -1,15 +1,10 @@
 <div class="space-y-6">
-  <!-- Page Header -->
-  <div>
-    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-    <p class="text-gray-600">Overview of your financial status</p>
-  </div>
-
+  <app-loader [isLoading]="isLoading"></app-loader>
   <!-- Summary Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-    <app-income-card [amount]="totalIncome"></app-income-card>
-    <app-expense-card [amount]="totalExpenses"></app-expense-card>
-    <app-balance-card [amount]="balance"></app-balance-card>
+    <app-income-card [amount]="totalIncome" [currencySymbol]="currencySymbol"></app-income-card>
+    <app-expense-card [amount]="totalExpenses" [currencySymbol]="currencySymbol"></app-expense-card>
+    <app-balance-card [amount]="balance" [currencySymbol]="currencySymbol"></app-balance-card>
   </div>
 
   <!-- Charts Section -->
@@ -62,7 +57,7 @@
             <p class="font-semibold"
                [class.text-green-600]="transaction.type === 'income'"
                [class.text-red-600]="transaction.type === 'expense'">
-              {{ transaction.type === 'income' ? '+' : '-' }}${{ transaction.amount }}
+              {{ transaction.type === 'income' ? '+' : '-' }}{{ currencySymbol }}{{ transaction.amount }}
             </p>
           </div>
         </div>

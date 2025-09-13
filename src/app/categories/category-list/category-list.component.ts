@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CategoryService } from '../../shared/services/category.service';
+import { CurrencyService } from '../../shared/services/currency.service';
+import { Category as CategoryModel } from '../../shared/models/category.model';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
 interface Category {
   id: string;
   name: string;
@@ -23,11 +26,12 @@ interface CategoryStats {
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LoaderComponent],
   templateUrl: './category-list.component.html',
   styleUrls: ['./category-list.component.scss']
 })
 export class CategoryListComponent implements OnInit {
+  isLoading = false;
   activeTab: 'all' | 'expense' | 'income' = 'all';
   showMenuFor: string | null = null;
 
@@ -37,78 +41,7 @@ export class CategoryListComponent implements OnInit {
     { key: 'income' as const, label: 'Income Categories', icon: 'fas fa-arrow-up', color: '#10b981', count: 1 }
   ];
 
-  categories: Category[] = [
-    {
-      id: '1',
-      name: 'Food & Dining',
-      type: 'expense',
-      icon: 'utensils',
-      color: '#f59e0b',
-      transactions: 23,
-      totalAmount: 1245.67,
-      isActive: true
-    },
-    {
-      id: '2',
-      name: 'Transportation',
-      type: 'expense',
-      icon: 'car',
-      color: '#3b82f6',
-      transactions: 15,
-      totalAmount: 687.45,
-      isActive: true
-    },
-    {
-      id: '3',
-      name: 'Shopping',
-      type: 'expense',
-      icon: 'shopping-bag',
-      color: '#8b5cf6',
-      transactions: 18,
-      totalAmount: 523.11,
-      isActive: true
-    },
-    {
-      id: '4',
-      name: 'Utilities',
-      type: 'expense',
-      icon: 'bolt',
-      color: '#eab308',
-      transactions: 8,
-      totalAmount: 398.45,
-      isActive: true
-    },
-    {
-      id: '5',
-      name: 'Entertainment',
-      type: 'expense',
-      icon: 'film',
-      color: '#ec4899',
-      transactions: 12,
-      totalAmount: 189.32,
-      isActive: true
-    },
-    {
-      id: '6',
-      name: 'Healthcare',
-      type: 'expense',
-      icon: 'heart',
-      color: '#ef4444',
-      transactions: 6,
-      totalAmount: 525.78,
-      isActive: true
-    },
-    {
-      id: '7',
-      name: 'Income',
-      type: 'income',
-      icon: 'dollar-sign',
-      color: '#10b981',
-      transactions: 4,
-      totalAmount: 5500.00,
-      isActive: true
-    }
-  ];
+  categories: Category[] = [];
 
   stats: CategoryStats = {
     totalCategories: 7,
@@ -118,15 +51,48 @@ export class CategoryListComponent implements OnInit {
     incomeCategories: 1
   };
 
-  constructor(private router: Router) {}
+  currencySymbol: string = '₹';
+
+  constructor(
+    private router: Router, 
+    private categoryService: CategoryService,
+    private currencyService: CurrencyService
+  ) {}
 
   ngOnInit(): void {
-    this.updateTabCounts();
+    this.currencySymbol = this.currencyService.getCurrentCurrency().symbol;
+    this.loadCategories();
     // Close menu when clicking outside
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.relative')) {
         this.showMenuFor = null;
+      }
+    });
+  }
+
+  loadCategories(): void {
+    this.isLoading = true;
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          type: cat.type,
+          icon: cat.icon,
+          color: cat.color,
+          transactions: 0,
+          totalAmount: 0,
+          isActive: true
+        }));
+        this.updateTabCounts();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.categories = [];
+        this.updateTabCounts();
+        this.isLoading = false;
       }
     });
   }
@@ -210,8 +176,15 @@ export class CategoryListComponent implements OnInit {
     this.closeMenu();
     const category = this.categories.find(cat => cat.id === categoryId);
     if (category && confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
-      this.categories = this.categories.filter(cat => cat.id !== categoryId);
-      this.updateTabCounts();
+      this.categoryService.deleteCategory(categoryId).subscribe({
+        next: () => {
+          this.loadCategories();
+        },
+        error: (error) => {
+          console.error('Error deleting category:', error);
+          alert('Failed to delete category');
+        }
+      });
     }
   }
 

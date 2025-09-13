@@ -1,7 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../auth/auth.service';
+import { UserService } from '../../shared/services/user.service';
+import { CurrencyService } from '../../shared/services/currency.service';
+import { User } from '../../shared/models/user.model';
+import { LoaderComponent } from '../../shared/components/loader/loader.component';
 
 interface UserProfile {
   fullName: string;
@@ -25,24 +31,23 @@ interface NotificationSettings {
 @Component({
   selector: 'app-profile-view',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule,LoaderComponent],
   templateUrl:'./profile-view.component.html'
 })
 export class ProfileViewComponent implements OnInit {
-  
-  // User profile data
+  isLoading:boolean = false;
   userProfile: UserProfile = {
-    fullName: 'Alex Johnson',
-    email: 'alex.johnson@email.com',
-    initials: 'AJ',
-    memberType: 'Premium Member',
-    memberSince: new Date('2024-03-01'),
+    fullName: '',
+    email: '',
+    initials: '',
+    memberType: 'Free Member',
+    memberSince: new Date(),
     accountStatus: 'Active',
-    daysActive: 156,
-    transactions: 247,
-    categoriesUsed: 12,
-    totalSaved: 3421,
-    isPremium: true
+    daysActive: 0,
+    transactions: 0,
+    categoriesUsed: 0,
+    totalSaved: 0,
+    isPremium: false
   };
 
   // Notification settings
@@ -51,6 +56,9 @@ export class ProfileViewComponent implements OnInit {
     budgetAlerts: true,
     monthlyReports: false
   };
+  
+  reportFormat: string = 'excel';
+  currencySymbol: string = '₹';
 
   // Edit mode states
   editingPersonalInfo: boolean = false;
@@ -73,11 +81,59 @@ export class ProfileViewComponent implements OnInit {
   // Security settings
   passwordLastChanged: Date = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000); // 2 months ago
   twoFactorEnabled: boolean = false;
+  showLogoutModal: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private userService: UserService,
+    private http: HttpClient,
+    private currencyService: CurrencyService
+  ) { }
 
   ngOnInit(): void {
-    this.initializeEditForm();
+    this.currencySymbol = this.currencyService.getCurrentCurrency().symbol;
+    this.isLoading = true;
+    this.loadUserProfile();
+  }
+
+  loadUserProfile(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        this.userProfile = {
+          fullName: `${user.firstName} ${user.lastName}`.trim(),
+          email: user.email,
+          initials: `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase(),
+          memberType: 'Free Member',
+          memberSince: user.createdAt,
+          accountStatus: 'Active',
+          daysActive: Math.floor((Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
+          transactions: 0,
+          categoriesUsed: 0,
+          totalSaved: 0,
+          isPremium: false
+        };
+        
+        this.loadUserStatistics();
+        
+        if (user.settings) {
+          this.notificationSettings = {
+            emailNotifications: user.settings.emailNotifications,
+            budgetAlerts: user.settings.budgetAlerts,
+            monthlyReports: user.settings.monthlyReports
+          };
+          this.reportFormat = user.settings.reportFormat || 'excel';
+          this.twoFactorEnabled = user.settings.twoFactorEnabled;
+        }
+        this.isLoading = false;
+        this.initializeEditForm();
+      },
+      error: (error) => {
+        console.error('Error loading user profile:', error);
+        this.initializeEditForm();
+        this.isLoading = false;
+      }
+    });
   }
 
   // Initialize edit form with current values
@@ -101,15 +157,25 @@ export class ProfileViewComponent implements OnInit {
 
   savePersonalInfo(): void {
     if (this.editForm.fullName.trim() && this.editForm.email.trim()) {
-      this.userProfile.fullName = this.editForm.fullName;
-      this.userProfile.email = this.editForm.email;
-      
-      // Update initials
       const names = this.editForm.fullName.split(' ');
-      this.userProfile.initials = names.map(name => name.charAt(0)).join('').toUpperCase();
+      const updateData = {
+        firstName: names[0] || '',
+        lastName: names.slice(1).join(' ') || '',
+        email: this.editForm.email
+      };
       
-      this.editingPersonalInfo = false;
-      console.log('Personal info updated:', this.userProfile);
+      this.userService.updateUser(updateData).subscribe({
+        next: (user) => {
+          this.userProfile.fullName = this.editForm.fullName;
+          this.userProfile.email = this.editForm.email;
+          this.userProfile.initials = names.map(name => name.charAt(0)).join('').toUpperCase();
+          this.editingPersonalInfo = false;
+        },
+        error: (error) => {
+          console.error('Error updating profile:', error);
+          alert('Failed to update profile');
+        }
+      });
     }
   }
 
@@ -138,11 +204,36 @@ export class ProfileViewComponent implements OnInit {
       return;
     }
 
-    // Simulate password change
-    this.passwordLastChanged = new Date();
-    this.showChangePasswordModal = false;
-    alert('Password changed successfully');
-    console.log('Password changed');
+    const token = this.authService.getToken();
+    this.http.put('https://balancio-backend.vercel.app/users/change-password', {
+      currentPassword: this.passwordForm.currentPassword,
+      newPassword: this.passwordForm.newPassword
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {
+        this.passwordLastChanged = new Date();
+        this.showChangePasswordModal = false;
+        alert('Password changed successfully. Please log in again with your new password.');
+        
+        // Force logout to ensure new password is required
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Password change error details:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.error);
+        
+        if (error.status === 400) {
+          alert('Current password is incorrect');
+        } else if (error.status === 404) {
+          alert('Password change endpoint not found. Please contact support.');
+        } else {
+          alert(`Failed to change password: ${error.error?.message || error.message || 'Unknown error'}`);
+        }
+      }
+    });
   }
 
   // Two-Factor Authentication
@@ -156,16 +247,48 @@ export class ProfileViewComponent implements OnInit {
 
   toggleTwoFactor(): void {
     this.twoFactorEnabled = !this.twoFactorEnabled;
-    this.showTwoFactorModal = false;
-    const status = this.twoFactorEnabled ? 'enabled' : 'disabled';
-    alert(`Two-factor authentication ${status}`);
-    console.log('2FA toggled:', this.twoFactorEnabled);
+    
+    const updateData = {
+      settings: {
+        ...this.notificationSettings,
+        twoFactorEnabled: this.twoFactorEnabled
+      }
+    };
+    
+    this.userService.updateUser(updateData).subscribe({
+      next: () => {
+        this.showTwoFactorModal = false;
+        const status = this.twoFactorEnabled ? 'enabled' : 'disabled';
+        alert(`Two-factor authentication ${status}`);
+      },
+      error: (error) => {
+        console.error('Error updating 2FA:', error);
+        this.twoFactorEnabled = !this.twoFactorEnabled;
+        alert('Failed to update two-factor authentication');
+      }
+    });
   }
 
   // Notification Settings
   updateNotificationSetting(setting: keyof NotificationSettings): void {
     this.notificationSettings[setting] = !this.notificationSettings[setting];
-    console.log('Notification settings updated:', this.notificationSettings);
+    
+    const updateData = {
+      settings: {
+        ...this.notificationSettings,
+        twoFactorEnabled: this.twoFactorEnabled
+      }
+    };
+    
+    this.userService.updateUser(updateData).subscribe({
+      next: () => {
+        console.log('Notification settings updated');
+      },
+      error: (error) => {
+        console.error('Error updating settings:', error);
+        this.notificationSettings[setting] = !this.notificationSettings[setting];
+      }
+    });
   }
 
   configureEmailNotifications(): void {
@@ -181,6 +304,26 @@ export class ProfileViewComponent implements OnInit {
   configureMonthlyReports(): void {
     console.log('Configure monthly reports');
     // Open configuration modal or navigate to detailed settings
+  }
+  
+  updateReportFormat(): void {
+    console.log('Report format updated:', this.reportFormat);
+    const updateData = {
+      settings: {
+        ...this.notificationSettings,
+        reportFormat: this.reportFormat,
+        twoFactorEnabled: this.twoFactorEnabled
+      }
+    };
+    
+    this.userService.updateUser(updateData).subscribe({
+      next: () => {
+        console.log('Report format updated successfully');
+      },
+      error: (error) => {
+        console.error('Error updating report format:', error);
+      }
+    });
   }
 
   // Quick Actions
@@ -216,10 +359,26 @@ export class ProfileViewComponent implements OnInit {
   }
 
   signOut(): void {
-    if (confirm('Are you sure you want to sign out?')) {
-      this.authService.logout();
-      this.router.navigate(['/login']);
-    }
+    this.showLogoutModal = true;
+  }
+  
+  confirmLogout(): void {
+    // Clear all local data
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Call auth service logout
+    this.authService.logout();
+    
+    // Navigate to login
+    this.router.navigate(['/login']).then(() => {
+      // Force page reload to clear any cached data
+      window.location.reload();
+    });
+  }
+  
+  cancelLogout(): void {
+    this.showLogoutModal = false;
   }
 
   // Utility methods
@@ -234,6 +393,29 @@ export class ProfileViewComponent implements OnInit {
       const diffMonths = Math.floor(diffDays / 30);
       return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
     }
+  }
+
+  loadUserStatistics(): void {
+    // Load transaction statistics
+    this.http.get<any[]>('https://balancio-backend.vercel.app/api/transactions', {
+      headers: { Authorization: `Bearer ${this.authService.getToken()}` }
+    }).subscribe({
+      next: (transactions) => {
+        this.userProfile.transactions = transactions.length;
+        
+        // Calculate total savings (income - expenses)
+        const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        this.userProfile.totalSaved = income - expenses;
+        
+        // Count unique categories
+        const uniqueCategories = new Set(transactions.map(t => t.categoryId));
+        this.userProfile.categoriesUsed = uniqueCategories.size;
+      },
+      error: (error) => {
+        console.error('Error loading transaction statistics:', error);
+      }
+    });
   }
 
   getMemberSinceText(): string {

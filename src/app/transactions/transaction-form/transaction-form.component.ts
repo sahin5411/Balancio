@@ -28,10 +28,11 @@ export class TransactionFormComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.transactionForm = this.fb.group({
+      title: ['', [Validators.required]],
       amount: ['', [Validators.required, Validators.min(0.01)]],
       type: ['expense', [Validators.required]],
       categoryId: ['', [Validators.required]],
-      description: ['', [Validators.required]],
+      description: [''],
       date: [new Date().toISOString().split('T')[0], [Validators.required]]
     });
   }
@@ -56,6 +57,7 @@ export class TransactionFormComponent implements OnInit {
     this.transactionService.getTransaction(id).subscribe(transaction => {
       if (transaction) {
         this.transactionForm.patchValue({
+          title: transaction.title,
           amount: transaction.amount,
           type: transaction.type,
           categoryId: transaction.categoryId,

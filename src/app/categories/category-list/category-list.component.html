@@ -1,9 +1,10 @@
 <div class="bg-gray-50 min-h-screen">
+  <app-loader [isLoading]="isLoading"></app-loader>
   <div class="p-3 sm:p-6">
     <!-- Header -->
     <div class="mb-6 sm:mb-8">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-3 sm:space-y-0 mb-4">
-        <div>
+        <div class="hidden">
           <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Categories</h1>
           <p class="text-gray-600 text-sm sm:text-base">Organize and manage your transaction categories</p>
         </div>
@@ -71,7 +72,7 @@
                     class="font-medium"
                     [class.text-green-600]="category.type === 'income'"
                     [class.text-red-600]="category.type === 'expense'">
-                    {{ category.type === 'income' ? '+' : '' }}${{ category.totalAmount | number:'1.2-2' }}
+                    {{ category.type === 'income' ? '+' : '' }}{{ currencySymbol }}{{ category.totalAmount | number:'1.2-2' }}
                   </span>
                 </div>
               </div>
@@ -88,31 +89,16 @@
               <!-- Dropdown Menu -->
               <div 
                 *ngIf="showMenuFor === category.id"
-                class="absolute right-0 top-8 sm:top-10 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                class="absolute right-full top-0 mr-1 w-20 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50">
                 <button 
                   (click)="editCategory(category.id)"
-                  class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
-                  <span class="material-icons text-blue-500 text-sm sm:text-base">edit</span>
-                  <span>Edit</span>
+                  class="w-full px-2 py-1 text-blue-500 hover:bg-gray-50 rounded text-xs">
+                  Edit
                 </button>
-                <button 
-                  (click)="duplicateCategory(category.id)"
-                  class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
-                  <span class="material-icons text-green-500 text-sm sm:text-base">content_copy</span>
-                  <span>Duplicate</span>
-                </button>
-                <button 
-                  (click)="toggleCategoryStatus(category.id)"
-                  class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
-                  <span class="material-icons text-sm sm:text-base" [class.text-yellow-500]="category.isActive" [class.text-green-500]="!category.isActive">{{ category.isActive ? 'pause' : 'play_arrow' }}</span>
-                  <span>{{ category.isActive ? 'Deactivate' : 'Activate' }}</span>
-                </button>
-                <hr class="my-1">
                 <button 
                   (click)="deleteCategory(category.id)"
-                  class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2">
-                  <span class="material-icons text-red-500 text-sm sm:text-base">delete</span>
-                  <span>Delete</span>
+                  class="w-full px-2 py-1 text-red-500 hover:bg-red-50 rounded text-xs">
+                  Delete
                 </button>
               </div>
             </div>

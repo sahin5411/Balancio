@@ -1,0 +1,10 @@
+- [x] Create loader.service.ts in shared/services
+- [x] Create loader component in shared/components/loader (ts, html, css)
+- [x] Create loader.interceptor.ts in shared/interceptors
+- [x] Update app.config.ts to provide the interceptor
+- [x] Update app.component.ts to import LoaderComponent
+- [x] Update app.component.html to include <app-loader>
+- [x] Update transaction-list.component.ts to use local loader
+- [x] Update category-list.component.ts to use local loader
+- [x] Update reports.component.ts to use local loader
+- [ ] Update other components with initial data loading

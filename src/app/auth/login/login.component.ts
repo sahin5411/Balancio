@@ -15,6 +15,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -22,8 +23,8 @@ export class LoginComponent {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      email: ['admin@example.com', [Validators.required, Validators.email]],
-      password: ['password', [Validators.required, Validators.minLength(6)]]
+      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
@@ -33,8 +34,9 @@ export class LoginComponent {
       this.errorMessage = '';
       
       const { email, password } = this.loginForm.value;
+    const emailLower = email.toLowerCase();
       
-      this.authService.login(email, password).subscribe({
+      this.authService.login(emailLower, password).subscribe({
         next: (result) => {
           this.isLoading = false;
           if (result.success) {
@@ -49,5 +51,39 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  loginWithGoogle() {
+    this.authService.loginWithGoogle().subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.errorMessage = result.message || 'Google login failed';
+        }
+      },
+      error: (error) => {
+        this.errorMessage = 'Google login failed';
+      }
+    });
+  }
+
+  loginWithGitHub() {
+    this.authService.loginWithGitHub().subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.errorMessage = result.message || 'GitHub login failed';
+        }
+      },
+      error: (error) => {
+        this.errorMessage = 'GitHub login failed';
+      }
+    });
   }
 }

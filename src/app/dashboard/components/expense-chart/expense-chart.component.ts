@@ -1,5 +1,8 @@
 import { Component, Input, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../../auth/auth.service';
+import { CurrencyService } from '../../../shared/services/currency.service';
 import { Transaction } from '../../../shared/models/transaction.model';
 
 declare var ApexCharts: any;
@@ -18,11 +21,37 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
   totalIncome = 0;
   totalExpenses = 0;
   balance = 0;
+  categories: any[] = [];
+  currencySymbol: string = '₹';
 
   colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16', '#EC4899', '#6366F1'];
 
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private currencyService: CurrencyService
+  ) {}
+
   ngAfterViewInit() {
-    this.initChart();
+    this.currencySymbol = this.currencyService.getCurrentCurrency().symbol;
+    this.loadCategories();
+  }
+
+  loadCategories() {
+    const token = this.authService.getToken();
+    this.http.get<any[]>('https://balancio-backend.vercel.app/api/categories', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: (categories) => {
+        this.categories = categories;
+        this.initChart();
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.categories = [];
+        this.initChart();
+      }
+    });
   }
 
   ngOnChanges() {
@@ -35,18 +64,14 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
   private async initChart() {
     const ApexCharts = (await import('apexcharts')).default;
     
-    // Mock data for initial display
-    const mockSeries = [1200, 800, 600, 400, 300, 200];
-    const mockLabels = ['Food & Dining', 'Transportation', 'Shopping', 'Entertainment', 'Bills & Utilities', 'Healthcare'];
-    
     const options = {
-      series: mockSeries,
+      series: [100],
       chart: {
         type: 'donut',
         height: 280
       },
-      labels: mockLabels,
-      colors: this.colors,
+      labels: ['No Data'],
+      colors: ['#E5E7EB'],
       legend: {
         position: 'right',
         offsetY: 0,
@@ -67,8 +92,11 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
               show: true,
               total: {
                 show: true,
-                showAlways: false,
-                label: 'Financial Summary'
+                showAlways: true,
+                label: 'Total Expenses',
+                formatter: () => {
+                  return this.currencySymbol + this.totalExpenses.toLocaleString();
+                }
               }
             }
           }
@@ -79,7 +107,6 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
     this.chart = new ApexCharts(this.chartContainer.nativeElement, options);
     await this.chart.render();
     
-    // Update with real data if available
     this.updateChart();
   }
 
@@ -106,7 +133,12 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
     if (!this.chart) return;
     
     if (!this.transactions || this.transactions.length === 0) {
-      return; // Keep mock data if no transactions
+      this.chart.updateOptions({
+        series: [100],
+        labels: ['No Data'],
+        colors: ['#E5E7EB']
+      });
+      return;
     }
 
     const categoryTotals = this.transactions
@@ -120,20 +152,20 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
     if (categoryTotals.size > 0) {
       this.chart.updateOptions({
         series: Array.from(categoryTotals.values()),
-        labels: Array.from(categoryTotals.keys())
+        labels: Array.from(categoryTotals.keys()),
+        colors: this.colors.slice(0, categoryTotals.size)
+      });
+    } else {
+      this.chart.updateOptions({
+        series: [100],
+        labels: ['No Expenses'],
+        colors: ['#E5E7EB']
       });
     }
   }
 
   private getCategoryName(categoryId: string): string {
-    const categoryMap: { [key: string]: string } = {
-      '1': 'Food & Dining',
-      '2': 'Transportation',
-      '3': 'Shopping',
-      '4': 'Entertainment',
-      '5': 'Bills & Utilities',
-      '6': 'Healthcare'
-    };
-    return categoryMap[categoryId] || `Category ${categoryId}`;
+    const category = this.categories.find(cat => cat._id === categoryId);
+    return category ? category.name : 'Unknown Category';
   }
 }

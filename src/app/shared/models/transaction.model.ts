@@ -9,4 +9,5 @@ export interface Transaction {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  category?: string;
 }

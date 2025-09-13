@@ -19,6 +19,10 @@ export const routes: Routes = [
       {
         path: 'signup',
         loadComponent: () => import('./auth/signup/signup.component').then(m => m.SignupComponent)
+      },
+      {
+        path: 'auth/callback',
+        loadComponent: () => import('./auth/auth-callback/auth-callback.component').then(m => m.AuthCallbackComponent)
       }
     ]
   },
@@ -63,6 +67,10 @@ export const routes: Routes = [
       {
         path: 'profile/edit',
         loadComponent: () => import('./profile/profile-edit/profile-edit.component').then(m => m.ProfileEditComponent)
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./reports/reports.component').then(m => m.ReportsComponent)
       }
     ]
   },

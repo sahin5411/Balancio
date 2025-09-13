@@ -1,8 +1,9 @@
 <!-- transactions.component.html -->
-<div class="p-3 sm:p-6 space-y-4 sm:space-y-6" (click)="closeActionsMenu()">
+ <app-loader [isLoading]="isLoading"></app-loader>
+<div class="p-3 sm:p-6 space-y-4 sm:space-y-6">
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-3 sm:space-y-0">
-    <div>
+    <div class="hidden">
       <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Transactions</h1>
       <p class="text-gray-500 mt-1 text-sm sm:text-base">Track and manage all your financial transactions</p>
     </div>
@@ -32,16 +33,16 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
     <div class="bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200">
       <h3 class="text-xs sm:text-sm font-medium text-green-800">Total Income</h3>
-      <p class="text-lg sm:text-2xl font-bold text-green-600">${{ getTotalIncome() | number:'1.2-2' }}</p>
+      <p class="text-lg sm:text-2xl font-bold text-green-600">{{ currencySymbol }}{{ getTotalIncome() | number:'1.2-2' }}</p>
     </div>
     <div class="bg-red-50 p-3 sm:p-4 rounded-lg border border-red-200">
       <h3 class="text-xs sm:text-sm font-medium text-red-800">Total Expenses</h3>
-      <p class="text-lg sm:text-2xl font-bold text-red-600">${{ getTotalExpenses() | number:'1.2-2' }}</p>
+      <p class="text-lg sm:text-2xl font-bold text-red-600">{{ currencySymbol }}{{ getTotalExpenses() | number:'1.2-2' }}</p>
     </div>
     <div class="bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200 sm:col-span-2 lg:col-span-1">
       <h3 class="text-xs sm:text-sm font-medium text-blue-800">Net Total</h3>
       <p class="text-lg sm:text-2xl font-bold" [class.text-green-600]="getNetTotal() >= 0" [class.text-red-600]="getNetTotal() < 0">
-        ${{ getNetTotal() | number:'1.2-2' }}
+        {{ currencySymbol }}{{ getNetTotal() | number:'1.2-2' }}
       </p>
     </div>
   </div>
@@ -55,9 +56,9 @@
 
     <!-- Search and Filters -->
     <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50">
-      <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-        <!-- Search -->
-        <div class="flex-1 relative">
+      <div class="space-y-3">
+        <!-- Search Bar - Full Width -->
+        <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -65,32 +66,68 @@
           </div>
           <input 
             type="text" 
-            placeholder="Search..." 
+            placeholder="Search transactions..." 
             [(ngModel)]="searchTerm"
             (input)="onSearch($event)"
             class="block w-full pl-9 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
           >
         </div>
 
-        <div class="flex space-x-2 sm:space-x-4">
+        <!-- Filters Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <!-- Date From -->
+          <div class="relative">
+            <label class="block text-xs text-gray-600 mb-1">From Date</label>
+            <input 
+              type="date" 
+              [(ngModel)]="dateFrom"
+              (change)="onDateFilter()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
+          </div>
+          
+          <!-- Date To -->
+          <div class="relative">
+            <label class="block text-xs text-gray-600 mb-1">To Date</label>
+            <div class="flex items-center space-x-2">
+              <input 
+                type="date" 
+                [(ngModel)]="dateTo"
+                (change)="onDateFilter()"
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
+              <button 
+                *ngIf="dateFrom || dateTo"
+                (click)="clearDateFilter()"
+                class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 flex-shrink-0"
+                title="Clear date filter">
+                <span class="material-icons text-sm">clear</span>
+              </button>
+            </div>
+          </div>
+          
           <!-- Category Filter -->
-          <select 
-            [(ngModel)]="selectedCategory"
-            (change)="onCategoryFilter($event)"
-            class="flex-1 sm:flex-none px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm bg-white">
-            <option value="">All Categories</option>
-            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
-          </select>
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">Category</label>
+            <select 
+              [(ngModel)]="selectedCategory"
+              (change)="onCategoryFilter($event)"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
+              <option value="">All Categories</option>
+              <option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</option>
+            </select>
+          </div>
 
           <!-- Type Filter -->
-          <select 
-            [(ngModel)]="selectedType"
-            (change)="onTypeFilter($event)"
-            class="flex-1 sm:flex-none px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm bg-white">
-            <option value="">All Types</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">Type</label>
+            <select 
+              [(ngModel)]="selectedType"
+              (change)="onTypeFilter($event)"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
+              <option value="">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
@@ -100,29 +137,55 @@
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" (click)="onSort('date')">
+              <div class="flex items-center space-x-1">
+                <span class="text-xs">Date</span>
+                <span class="text-xs font-mono">{{ getSortText('date') }}</span>
+              </div>
+            </th>
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" (click)="onSort('title')">
+              <div class="flex items-center space-x-1">
+                <span class="text-xs">Title</span>
+                <span class="text-xs font-mono">{{ getSortText('title') }}</span>
+              </div>
+            </th>
+            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" (click)="onSort('amount')">
+              <div class="flex items-center justify-end space-x-1">
+                <span class="text-xs">Amount</span>
+                <span class="text-xs font-mono">{{ getSortText('amount') }}</span>
+              </div>
+            </th>
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" (click)="onSort('type')">
+              <div class="flex items-center space-x-1">
+                <span class="text-xs">Type</span>
+                <span class="text-xs font-mono">{{ getSortText('type') }}</span>
+              </div>
+            </th>
             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <tr *ngFor="let transaction of filteredTransactions; trackBy: trackByTransactionId" class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.date | date:'MMM d, yyyy' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">{{ transaction.title }}</div></td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" [ngClass]="getAmountColor(transaction)">{{ getAmountDisplay(transaction) }}</td>
-            <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex px-2 py-1 text-xs font-medium rounded-full" [ngClass]="getCategoryBadgeColor('Category ' + transaction.categoryId)">{{ 'Category ' + transaction.categoryId }}</span></td>
-            <td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex px-2 py-1 text-xs font-medium rounded-full" [ngClass]="getTypeBadgeColor(transaction.type)">{{ transaction.type | titlecase }}</span></td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
-              <button (click)="toggleActionsMenu(transaction.id); $event.stopPropagation()" class="text-gray-400 hover:text-gray-500">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-              </button>
-              <div *ngIf="showActionsMenu === transaction.id" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                <div class="py-1">
-                  <button (click)="editTransaction(transaction.id)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">Edit Transaction</button>
-                  <button (click)="deleteTransaction(transaction.id)" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left">Delete Transaction</button>
+            <td class="px-3 py-4 whitespace-nowrap text-xs text-gray-500">{{ transaction.date | date:'MMM d, yyyy' }}</td>
+            <td class="px-3 py-4 whitespace-nowrap"><div class="text-xs font-medium text-gray-900">{{ transaction.title }}</div></td>
+            <td class="px-3 py-4 whitespace-nowrap text-right text-xs font-medium" [ngClass]="getAmountColor(transaction)">{{ getAmountDisplay(transaction) }}</td>
+            <td class="px-3 py-4 whitespace-nowrap"><span class="inline-flex px-2 py-1 text-xs font-medium rounded-full" [ngClass]="getCategoryBadgeColor(transaction.category || '')">{{ transaction.category || 'Unknown' }}</span></td>
+            <td class="px-3 py-4 whitespace-nowrap"><span class="inline-flex px-2 py-1 text-xs font-medium rounded-full" [ngClass]="getTypeBadgeColor(transaction.type)">{{ transaction.type | titlecase }}</span></td>
+            <td class="px-3 py-4 whitespace-nowrap text-right text-xs font-medium">
+              <div class="relative inline-block">
+                <button (click)="toggleActionsMenu(transaction.id, $event)" class="text-gray-400 hover:text-gray-500 p-1 rounded">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                </button>
+                <div *ngIf="showActionsMenu === transaction.id" class="absolute right-full bottom-0 mr-1 w-20 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                  <div class="py-1">
+                    <button (click)="editTransaction(transaction.id, $event)" class="flex items-center justify-center px-2 py-2 text-gray-700 hover:bg-gray-100 w-full text-xs">
+                      Edit
+                    </button>
+                    <button (click)="deleteTransaction(transaction.id, $event)" class="flex items-center justify-center px-2 py-2 text-red-600 hover:bg-gray-100 w-full text-xs">
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </td>
@@ -150,20 +213,26 @@
           </div>
           <div class="flex items-center space-x-2">
             <span class="text-sm font-medium" [ngClass]="getAmountColor(transaction)">{{ getAmountDisplay(transaction) }}</span>
-            <button (click)="toggleActionsMenu(transaction.id); $event.stopPropagation()" class="text-gray-400 hover:text-gray-500 relative">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-              <div *ngIf="showActionsMenu === transaction.id" class="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+            <div class="relative inline-block">
+              <button (click)="toggleActionsMenu(transaction.id, $event)" class="text-gray-400 hover:text-gray-500 p-1 rounded">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+              </button>
+              <div *ngIf="showActionsMenu === transaction.id" class="absolute right-full bottom-0 mr-1 w-16 bg-white rounded-md shadow-lg z-50 border border-gray-200">
                 <div class="py-1">
-                  <button (click)="editTransaction(transaction.id)" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 w-full text-left">Edit</button>
-                  <button (click)="deleteTransaction(transaction.id)" class="block px-3 py-2 text-xs text-red-600 hover:bg-gray-100 w-full text-left">Delete</button>
+                  <button (click)="editTransaction(transaction.id, $event)" class="flex items-center justify-center px-2 py-2 text-gray-700 hover:bg-gray-100 w-full text-xs">
+                    Edit
+                  </button>
+                  <button (click)="deleteTransaction(transaction.id, $event)" class="flex items-center justify-center px-2 py-2 text-red-600 hover:bg-gray-100 w-full text-xs">
+                    Delete
+                  </button>
                 </div>
               </div>
-            </button>
+            </div>
           </div>
         </div>
         <div class="flex justify-between items-center">
           <div class="flex space-x-2">
-            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full" [ngClass]="getCategoryBadgeColor('Category ' + transaction.categoryId)">{{ 'Category ' + transaction.categoryId }}</span>
+            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full" [ngClass]="getCategoryBadgeColor(transaction.category || '')">{{ transaction.category || 'Unknown' }}</span>
             <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full" [ngClass]="getTypeBadgeColor(transaction.type)">{{ transaction.type | titlecase }}</span>
           </div>
         </div>
@@ -191,9 +260,28 @@
       </div>
 
       <form (ngSubmit)="addTransaction()" class="space-y-4">
-        <div>
+        <div class="relative">
           <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input type="text" [(ngModel)]="newTransaction.title" name="title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Enter transaction title">
+          <input 
+            type="text" 
+            [(ngModel)]="newTransaction.title" 
+            name="title" 
+            required 
+            (input)="onTitleInput($event)"
+            (focus)="onTitleInput($event)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+            placeholder="Enter transaction title">
+          
+          <!-- Suggestions Dropdown -->
+          <div *ngIf="showSuggestions" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+            <button 
+              *ngFor="let suggestion of titleSuggestions"
+              type="button"
+              (click)="selectSuggestion(suggestion)"
+              class="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm border-b border-gray-100 last:border-b-0">
+              {{ suggestion }}
+            </button>
+          </div>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
@@ -203,12 +291,12 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
           <select [(ngModel)]="newTransaction.category" name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
             <option value="">Select a category</option>
-            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+            <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-          <select [(ngModel)]="newTransaction.type" name="type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+          <select [(ngModel)]="newTransaction.type" name="type" required (change)="onTypeChange()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
             <option value="expense">Expense</option>
             <option value="income">Income</option>
           </select>
