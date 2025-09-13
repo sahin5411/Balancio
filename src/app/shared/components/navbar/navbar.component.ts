@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,6 +15,7 @@ export class NavbarComponent implements OnInit {
   searchTerm: string = '';
   showUserMenu: boolean = false;
   showNotifications: boolean = false;
+  showMobileSearch: boolean = false;
   unreadNotifications: number = 3;
 
   // Mock user data
@@ -163,5 +164,16 @@ currentUser = {
   // Get welcome message
   getWelcomeMessage(): string {
     return `Welcome back, ${this.currentUser.name}`;
+  }
+
+  // Mobile responsive methods
+  toggleMobileSearch(): void {
+    this.showMobileSearch = !this.showMobileSearch;
+  }
+
+  @Output() mobileMenuToggle = new EventEmitter<void>();
+
+  toggleMobileMenu(): void {
+    this.mobileMenuToggle.emit();
   }
 }

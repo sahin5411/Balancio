@@ -6,24 +6,28 @@
   </div>
 
   <!-- Summary Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
     <app-income-card [amount]="totalIncome"></app-income-card>
     <app-expense-card [amount]="totalExpenses"></app-expense-card>
     <app-balance-card [amount]="balance"></app-balance-card>
   </div>
 
   <!-- Charts Section -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
     <!-- Expense Breakdown Chart -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
-      <app-expense-chart [transactions]="transactions"></app-expense-chart>
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+      <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
+      <div class="h-64 sm:h-80">
+        <app-expense-chart [transactions]="transactions"></app-expense-chart>
+      </div>
     </div>
 
     <!-- Income vs Expenses Chart -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Income vs Expenses</h3>
-      <app-income-expense-bar-chart [transactions]="transactions"></app-income-expense-bar-chart>
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+      <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-4">Income vs Expenses</h3>
+      <div class="h-64 sm:h-80">
+        <app-income-expense-bar-chart [transactions]="transactions"></app-income-expense-bar-chart>
+      </div>
     </div>
   </div>
 

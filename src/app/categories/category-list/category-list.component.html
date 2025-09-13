@@ -1,24 +1,25 @@
 <div class="bg-gray-50 min-h-screen">
-  <div class="p-6">
+  <div class="p-3 sm:p-6">
     <!-- Header -->
-    <div class="mb-8">
-      <div class="flex justify-between items-start mb-4">
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-3 sm:space-y-0 mb-4">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Categories</h1>
-          <p class="text-gray-600">Organize and manage your transaction categories</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Categories</h1>
+          <p class="text-gray-600 text-sm sm:text-base">Organize and manage your transaction categories</p>
         </div>
         <button 
           (click)="addCategory()"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-          <span class="material-icons">add</span>
-          <span>Add Category</span>
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base">
+          <span class="material-icons text-lg sm:text-xl">add</span>
+          <span class="hidden sm:inline">Add Category</span>
+          <span class="sm:hidden">Add</span>
         </button>
       </div>
     </div>
 
     <!-- Category Type Tabs -->
-    <div class="mb-6">
-      <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg ">
+    <div class="mb-4 sm:mb-6">
+      <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
         <button
           *ngFor="let tab of categoryTabs"
           (click)="activeTab = tab.key"
@@ -26,10 +27,11 @@
           [class.text-gray-900]="activeTab === tab.key"
           [class.text-gray-600]="activeTab !== tab.key"
           [class.shadow-sm]="activeTab === tab.key"
-          class="flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 font-medium text-sm flex-1 justify-center">
-          <span class="material-icons text-base" [style.color]="tab.color">{{ getTabIcon(tab.key) }}</span>
-          <span>{{ tab.label }}</span>
-          <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs ml-1">
+          class="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-md transition-all duration-200 font-medium text-xs sm:text-sm flex-1 justify-center">
+          <span class="material-icons text-sm sm:text-base" [style.color]="tab.color">{{ getTabIcon(tab.key) }}</span>
+          <span class="hidden sm:inline">{{ tab.label }}</span>
+          <span class="sm:hidden">{{ tab.label.substring(0, 3) }}</span>
+          <span class="bg-gray-200 text-gray-700 px-1.5 sm:px-2 py-0.5 rounded-full text-xs ml-0.5 sm:ml-1">
             {{ tab.count }}
           </span>
         </button>
@@ -37,31 +39,33 @@
     </div>
 
     <!-- Categories List -->
-    <div class="space-y-4 mb-8">
+    <div class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
       <div 
         *ngFor="let category of filteredCategories; trackBy: trackByCategory"
         class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
         
         <!-- Category Header -->
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-4">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-start sm:items-center justify-between mb-3 sm:mb-4">
+            <div class="flex items-start sm:items-center space-x-3 sm:space-x-4 flex-1">
               <div 
-                class="w-10 h-10 rounded-lg flex items-center justify-center"
+                class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                 [style.background-color]="category.color + '15'">
-                <span class="material-icons text-lg" [style.color]="category.color">{{ getProperIcon(category.type, category.name) }}</span>
+                <span class="material-icons text-base sm:text-lg" [style.color]="category.color">{{ getProperIcon(category.type, category.name) }}</span>
               </div>
-              <div class="flex-1">
-                <div class="flex items-center space-x-3 mb-1">
-                  <h3 class="font-semibold text-gray-900 text-base">{{ category.name }}</h3>
-                  <span class="text-xs text-gray-500 uppercase tracking-wide bg-gray-100 px-2 py-1 rounded">{{ category.type }}</span>
-                  <span 
-                    *ngIf="category.isActive"
-                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
-                    <span class="material-icons text-xs mr-1">check_circle</span>Active
-                  </span>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-3 mb-1">
+                  <h3 class="font-semibold text-gray-900 text-sm sm:text-base truncate">{{ category.name }}</h3>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xs text-gray-500 uppercase tracking-wide bg-gray-100 px-2 py-1 rounded">{{ category.type }}</span>
+                    <span 
+                      *ngIf="category.isActive"
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
+                      <span class="material-icons text-xs mr-1">check_circle</span><span class="hidden sm:inline">Active</span>
+                    </span>
+                  </div>
                 </div>
-                <div class="flex items-center space-x-6 text-sm text-gray-600">
+                <div class="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-6 text-xs sm:text-sm text-gray-600">
                   <span>{{ category.transactions }} transactions</span>
                   <span 
                     class="font-medium"
@@ -74,40 +78,40 @@
             </div>
             
             <!-- Action Menu -->
-            <div class="relative" [class.show-menu]="showMenuFor === category.id">
+            <div class="relative flex-shrink-0" [class.show-menu]="showMenuFor === category.id">
               <button 
                 (click)="toggleMenu(category.id)"
-                class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <span class="material-icons">more_horiz</span>
+                class="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <span class="material-icons text-lg sm:text-xl">more_horiz</span>
               </button>
               
               <!-- Dropdown Menu -->
               <div 
                 *ngIf="showMenuFor === category.id"
-                class="absolute right-0 top-10 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                class="absolute right-0 top-8 sm:top-10 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
                 <button 
                   (click)="editCategory(category.id)"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
-                  <span class="material-icons text-blue-500 text-base">edit</span>
-                  <span>Edit Category</span>
+                  class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
+                  <span class="material-icons text-blue-500 text-sm sm:text-base">edit</span>
+                  <span>Edit</span>
                 </button>
                 <button 
                   (click)="duplicateCategory(category.id)"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
-                  <span class="material-icons text-green-500 text-base">content_copy</span>
+                  class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
+                  <span class="material-icons text-green-500 text-sm sm:text-base">content_copy</span>
                   <span>Duplicate</span>
                 </button>
                 <button 
                   (click)="toggleCategoryStatus(category.id)"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
-                  <span class="material-icons text-base" [class.text-yellow-500]="category.isActive" [class.text-green-500]="!category.isActive">{{ category.isActive ? 'pause' : 'play_arrow' }}</span>
+                  class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
+                  <span class="material-icons text-sm sm:text-base" [class.text-yellow-500]="category.isActive" [class.text-green-500]="!category.isActive">{{ category.isActive ? 'pause' : 'play_arrow' }}</span>
                   <span>{{ category.isActive ? 'Deactivate' : 'Activate' }}</span>
                 </button>
                 <hr class="my-1">
                 <button 
                   (click)="deleteCategory(category.id)"
-                  class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2">
-                  <span class="material-icons text-red-500 text-base">delete</span>
+                  class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2">
+                  <span class="material-icons text-red-500 text-sm sm:text-base">delete</span>
                   <span>Delete</span>
                 </button>
               </div>
@@ -133,39 +137,39 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div class="bg-blue-50 rounded-xl p-4 sm:p-6 border border-blue-100">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-blue-600 font-medium text-sm">Total Categories</p>
-            <p class="text-3xl font-bold text-blue-900 mt-1">{{ stats.totalCategories }}</p>
+            <p class="text-blue-600 font-medium text-xs sm:text-sm">Total Categories</p>
+            <p class="text-2xl sm:text-3xl font-bold text-blue-900 mt-1">{{ stats.totalCategories }}</p>
           </div>
-          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-            <span class="material-icons text-blue-600">layers</span>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <span class="material-icons text-blue-600 text-lg sm:text-xl">layers</span>
           </div>
         </div>
       </div>
 
-      <div class="bg-green-50 rounded-xl p-6 border border-green-100">
+      <div class="bg-green-50 rounded-xl p-4 sm:p-6 border border-green-100">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-green-600 font-medium text-sm">Active Categories</p>
-            <p class="text-3xl font-bold text-green-900 mt-1">{{ stats.activeCategories }}</p>
+            <p class="text-green-600 font-medium text-xs sm:text-sm">Active Categories</p>
+            <p class="text-2xl sm:text-3xl font-bold text-green-900 mt-1">{{ stats.activeCategories }}</p>
           </div>
-          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-            <span class="material-icons text-green-600">check_circle</span>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <span class="material-icons text-green-600 text-lg sm:text-xl">check_circle</span>
           </div>
         </div>
       </div>
 
-      <div class="bg-purple-50 rounded-xl p-6 border border-purple-100">
+      <div class="bg-purple-50 rounded-xl p-4 sm:p-6 border border-purple-100 sm:col-span-2 lg:col-span-1">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-purple-600 font-medium text-sm">Total Transactions</p>
-            <p class="text-3xl font-bold text-purple-900 mt-1">{{ stats.totalTransactions }}</p>
+            <p class="text-purple-600 font-medium text-xs sm:text-sm">Total Transactions</p>
+            <p class="text-2xl sm:text-3xl font-bold text-purple-900 mt-1">{{ stats.totalTransactions }}</p>
           </div>
-          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-            <span class="material-icons text-purple-600">swap_horiz</span>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <span class="material-icons text-purple-600 text-lg sm:text-xl">swap_horiz</span>
           </div>
         </div>
       </div>

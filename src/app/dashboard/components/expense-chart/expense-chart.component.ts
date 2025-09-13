@@ -17,6 +17,7 @@ export type ChartOptions = {
   legend: ApexLegend;
   dataLabels: ApexDataLabels;
   plotOptions?: any;
+  responsive?: any;
 };
 
 @Component({
@@ -39,14 +40,15 @@ export class ExpenseChartComponent implements OnChanges {
     series: [],
     chart: {
       type: 'donut',
-      height: 320
+      height: 280
     },
     labels: [],
     colors: this.colors,
     legend: {
       position: 'right',
       offsetY: 0,
-      height: 230
+      height: 230,
+      fontSize: '12px'
     },
     dataLabels: {
       enabled: true,
