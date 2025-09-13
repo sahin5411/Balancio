@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
 
 interface UserProfile {
   fullName: string;
@@ -73,7 +74,7 @@ export class ProfileViewComponent implements OnInit {
   passwordLastChanged: Date = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000); // 2 months ago
   twoFactorEnabled: boolean = false;
 
-  constructor() { }
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
     this.initializeEditForm();
@@ -216,8 +217,8 @@ export class ProfileViewComponent implements OnInit {
 
   signOut(): void {
     if (confirm('Are you sure you want to sign out?')) {
-      console.log('Signing out...');
-      // Implement sign out logic
+      this.authService.logout();
+      this.router.navigate(['/login']);
     }
   }
 

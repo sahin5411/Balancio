@@ -35,13 +35,17 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
   private async initChart() {
     const ApexCharts = (await import('apexcharts')).default;
     
+    // Mock data for initial display
+    const mockSeries = [1200, 800, 600, 400, 300, 200];
+    const mockLabels = ['Food & Dining', 'Transportation', 'Shopping', 'Entertainment', 'Bills & Utilities', 'Healthcare'];
+    
     const options = {
-      series: [],
+      series: mockSeries,
       chart: {
         type: 'donut',
         height: 280
       },
-      labels: [],
+      labels: mockLabels,
       colors: this.colors,
       legend: {
         position: 'right',
@@ -73,7 +77,10 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
     };
 
     this.chart = new ApexCharts(this.chartContainer.nativeElement, options);
-    this.chart.render();
+    await this.chart.render();
+    
+    // Update with real data if available
+    this.updateChart();
   }
 
   processExpenseData() {
@@ -96,9 +103,10 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
   }
 
   private updateChart() {
+    if (!this.chart) return;
+    
     if (!this.transactions || this.transactions.length === 0) {
-      this.chart.updateSeries([]);
-      return;
+      return; // Keep mock data if no transactions
     }
 
     const categoryTotals = this.transactions
@@ -109,10 +117,12 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
         return acc;
       }, new Map<string, number>());
 
-    this.chart.updateOptions({
-      series: Array.from(categoryTotals.values()),
-      labels: Array.from(categoryTotals.keys())
-    });
+    if (categoryTotals.size > 0) {
+      this.chart.updateOptions({
+        series: Array.from(categoryTotals.values()),
+        labels: Array.from(categoryTotals.keys())
+      });
+    }
   }
 
   private getCategoryName(categoryId: string): string {

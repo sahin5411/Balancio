@@ -62,10 +62,12 @@ export class IncomeExpenseBarChartComponent implements OnChanges, AfterViewInit 
     };
 
     this.chart = new ApexCharts(this.chartContainer.nativeElement, options);
-    this.chart.render();
+    await this.chart.render();
   }
 
   private updateChart() {
+    if (!this.chart) return;
+    
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
     const incomeData = months.map(() => Math.floor(Math.random() * 2000) + 3000);
     const expenseData = months.map(() => Math.floor(Math.random() * 1500) + 2000);

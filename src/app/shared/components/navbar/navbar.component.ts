@@ -55,7 +55,7 @@ currentUser = {
     }
   ];
 
-  constructor() { }
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
     // Close dropdowns when clicking outside
@@ -125,11 +125,10 @@ currentUser = {
   }
 
   logout() {
-    console.log('Logout clicked');
     this.showUserMenu = false;
-    // Implement logout logic
     if (confirm('Are you sure you want to logout?')) {
-      // Clear user session, navigate to login
+      this.authService.logout();
+      this.router.navigate(['/login']);
     }
   }
 
@@ -157,8 +156,17 @@ currentUser = {
 
   // Get current page title based on route
   getCurrentPageTitle(): string {
-    // This would typically get the title from the router or a service
-    return 'Balancio Dashboard';
+    const url = this.router.url;
+    const titleMap: { [key: string]: string } = {
+      '/dashboard': 'Dashboard',
+      '/transactions': 'Transactions',
+      '/budgets': 'Budgets',
+      '/categories': 'Categories',
+      '/reports': 'Reports',
+      '/settings': 'Settings',
+      '/profile': 'Profile'
+    };
+    return titleMap[url] || 'Balancio Dashboard';
   }
 
   // Get welcome message
