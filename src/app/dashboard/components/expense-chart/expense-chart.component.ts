@@ -1,34 +1,19 @@
-import { Component, Input, OnChanges, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
-import { 
-  ApexNonAxisChartSeries, 
-  ApexChart, 
-  ApexLegend, 
-  ApexDataLabels 
-} from 'ng-apexcharts';
 import { Transaction } from '../../../shared/models/transaction.model';
 
-export type ChartOptions = {
-  series: ApexNonAxisChartSeries;
-  chart: ApexChart;
-  labels: string[];
-  colors: string[];
-  legend: ApexLegend;
-  dataLabels: ApexDataLabels;
-  plotOptions?: any;
-  responsive?: any;
-};
+declare var ApexCharts: any;
 
 @Component({
   selector: 'app-expense-chart',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule],
+  imports: [CommonModule],
   templateUrl: './expense-chart.component.html'
 })
-export class ExpenseChartComponent implements OnChanges {
+export class ExpenseChartComponent implements OnChanges, AfterViewInit {
   @Input() transactions: Transaction[] = [];
-  @ViewChild('chart') chart!: ChartComponent;
+  @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
+  private chart!: ApexCharts;
 
   totalIncome = 0;
   totalExpenses = 0;
@@ -36,45 +21,59 @@ export class ExpenseChartComponent implements OnChanges {
 
   colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16', '#EC4899', '#6366F1'];
 
-  public chartOptions: ChartOptions = {
-    series: [],
-    chart: {
-      type: 'donut',
-      height: 280
-    },
-    labels: [],
-    colors: this.colors,
-    legend: {
-      position: 'right',
-      offsetY: 0,
-      height: 230,
-      fontSize: '12px'
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: (val: number) => {
-        return val.toFixed(1) + '%';
-      }
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: '65%',
-          labels: {
-            show: true,
-            total: {
-                show: true,
-                showAlways: false,
-                label: 'Financial Summary',
-              
-              }          }
-        }
-      }
-    }
-  };
+  ngAfterViewInit() {
+    this.initChart();
+  }
 
   ngOnChanges() {
     this.processExpenseData();
+    if (this.chart) {
+      this.updateChart();
+    }
+  }
+
+  private async initChart() {
+    const ApexCharts = (await import('apexcharts')).default;
+    
+    const options = {
+      series: [],
+      chart: {
+        type: 'donut',
+        height: 280
+      },
+      labels: [],
+      colors: this.colors,
+      legend: {
+        position: 'right',
+        offsetY: 0,
+        height: 230,
+        fontSize: '12px'
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (val: number) => {
+          return val.toFixed(1) + '%';
+        }
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '65%',
+            labels: {
+              show: true,
+              total: {
+                show: true,
+                showAlways: false,
+                label: 'Financial Summary'
+              }
+            }
+          }
+        }
+      }
+    };
+
+    this.chart = new ApexCharts(this.chartContainer.nativeElement, options);
+    this.chart.render();
   }
 
   processExpenseData() {
@@ -82,11 +81,6 @@ export class ExpenseChartComponent implements OnChanges {
       this.totalIncome = 0;
       this.totalExpenses = 0;
       this.balance = 0;
-      this.chartOptions = {
-        ...this.chartOptions,
-        series: [],
-        labels: []
-      };
       return;
     }
 
@@ -99,6 +93,13 @@ export class ExpenseChartComponent implements OnChanges {
       .reduce((sum, t) => sum + t.amount, 0);
 
     this.balance = this.totalIncome - this.totalExpenses;
+  }
+
+  private updateChart() {
+    if (!this.transactions || this.transactions.length === 0) {
+      this.chart.updateSeries([]);
+      return;
+    }
 
     const categoryTotals = this.transactions
       .filter(t => t.type === 'expense')
@@ -108,11 +109,10 @@ export class ExpenseChartComponent implements OnChanges {
         return acc;
       }, new Map<string, number>());
 
-    this.chartOptions = {
-      ...this.chartOptions,
+    this.chart.updateOptions({
       series: Array.from(categoryTotals.values()),
       labels: Array.from(categoryTotals.keys())
-    };
+    });
   }
 
   private getCategoryName(categoryId: string): string {
