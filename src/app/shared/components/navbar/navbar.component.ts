@@ -1,7 +1,8 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../auth/auth.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class NavbarComponent implements OnInit {
   showNotifications: boolean = false;
   showMobileSearch: boolean = false;
   unreadNotifications: number = 3;
+  currentPageTitle: string = 'Balancio Dashboard';
 
   // Mock user data
 
@@ -58,6 +60,16 @@ currentUser = {
   constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
+    // Update title on route changes
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.updatePageTitle();
+    });
+    
+    // Set initial title
+    this.updatePageTitle();
+    
     // Close dropdowns when clicking outside
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
@@ -154,8 +166,8 @@ currentUser = {
     return colorMap[type] || 'text-gray-500';
   }
 
-  // Get current page title based on route
-  getCurrentPageTitle(): string {
+  // Update page title based on current route
+  private updatePageTitle(): void {
     const url = this.router.url;
     const titleMap: { [key: string]: string } = {
       '/dashboard': 'Dashboard',
@@ -166,7 +178,12 @@ currentUser = {
       '/settings': 'Settings',
       '/profile': 'Profile'
     };
-    return titleMap[url] || 'Balancio Dashboard';
+    this.currentPageTitle = titleMap[url] || 'Balancio Dashboard';
+  }
+
+  // Get current page title
+  getCurrentPageTitle(): string {
+    return this.currentPageTitle;
   }
 
   // Get welcome message
