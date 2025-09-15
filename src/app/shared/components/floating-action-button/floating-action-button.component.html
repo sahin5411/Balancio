@@ -1,0 +1,52 @@
+<!-- Floating Action Button -->
+<div 
+  *ngIf="!isModalOpen"
+  class="fixed bottom-6 right-6 z-40"
+  (click)="$event.stopPropagation()">
+  
+  <!-- Background overlay when menu is open -->
+  <div 
+    *ngIf="showMenu"
+    (click)="closeMenu()"
+    class="fixed inset-0 bg-black bg-opacity-20 z-30"
+    style="margin: -100vh -100vw;">
+  </div>
+
+  <!-- FAB Menu Items -->
+  <div 
+    *ngIf="showMenu"
+    class="absolute bottom-16 right-0 space-y-3 z-40">
+    
+    <!-- Add Income Button -->
+    <div class="flex items-center space-x-3">
+      <span class="bg-black text-white text-xs px-3 py-1 rounded-lg opacity-80">
+        Add Income
+      </span>
+      <button
+        (click)="addIncome()"
+        class="w-12 h-12 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
+        <span class="material-icons text-lg">add</span>
+      </button>
+    </div>
+
+    <!-- Add Expense Button -->
+    <div class="flex items-center space-x-3">
+      <span class="bg-black text-white text-xs px-3 py-1 rounded-lg opacity-80">
+        Add Expense
+      </span>
+      <button
+        (click)="addExpense()"
+        class="w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
+        <span class="material-icons text-lg">remove</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main FAB Button -->
+  <button
+    (click)="toggleMenu()"
+    [class.rotate-45]="showMenu"
+    class="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center fab-main">
+    <span class="material-icons text-xl">{{ showMenu ? 'close' : 'add' }}</span>
+  </button>
+</div>

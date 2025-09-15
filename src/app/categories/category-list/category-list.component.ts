@@ -3,9 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CategoryService } from '../../shared/services/category.service';
 import { CurrencyService } from '../../shared/services/currency.service';
+import { TransactionService } from '../../shared/services/transaction.service';
 import { Category as CategoryModel } from '../../shared/models/category.model';
+import { Transaction } from '../../shared/models/transaction.model';
 import { LoaderComponent } from '../../shared/components/loader/loader.component';
 import { ConfirmationModalComponent } from '../../shared/components/confirmation-modal/confirmation-modal.component';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 interface Category {
   id: string;
   name: string;
@@ -59,12 +63,13 @@ export class CategoryListComponent implements OnInit {
   constructor(
     private router: Router, 
     private categoryService: CategoryService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private transactionService: TransactionService
   ) {}
 
   ngOnInit(): void {
     this.currencySymbol = this.currencyService.getCurrentCurrency().symbol;
-    this.loadCategories();
+    this.loadData();
     // Close menu when clicking outside
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
@@ -72,27 +77,54 @@ export class CategoryListComponent implements OnInit {
         this.showMenuFor = null;
       }
     });
+    
+    // Listen for global transaction added events
+    window.addEventListener('transactionAdded', () => {
+      this.loadData();
+    });
   }
 
-  loadCategories(): void {
+  loadData(): void {
     this.isLoading = true;
-    this.categoryService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories.map(cat => ({
-          id: cat.id,
-          name: cat.name,
-          type: cat.type,
-          icon: cat.icon,
-          color: cat.color,
-          transactions: 0,
-          totalAmount: 0,
-          isActive: true
-        }));
+    // Load both categories and transactions using forkJoin
+    forkJoin({
+      categories: this.categoryService.getCategories().pipe(
+        catchError(error => {
+          console.error('Error loading categories:', error);
+          return of([]);
+        })
+      ),
+      transactions: this.transactionService.getTransactions().pipe(
+        catchError(error => {
+          console.error('Error loading transactions:', error);
+          return of([]);
+        })
+      )
+    }).subscribe({
+      next: ({ categories, transactions }) => {
+        console.log('Categories loaded:', categories.length, 'categories');
+        console.log('Transactions loaded for categories:', transactions.length, 'transactions');
+        this.categories = categories.map(cat => {
+          const categoryTransactions = transactions.filter(t => t.categoryId === cat.id);
+          const totalAmount = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
+          console.log(`Category ${cat.name}: ${categoryTransactions.length} transactions, total: $${totalAmount}`);
+          return {
+            id: cat.id,
+            name: cat.name,
+            type: cat.type,
+            icon: cat.icon,
+            color: cat.color,
+            transactions: categoryTransactions.length,
+            totalAmount: totalAmount,
+            isActive: true
+          };
+        });
         this.updateTabCounts();
+        console.log('Updated stats:', this.stats);
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading categories:', error);
+        console.error('Error loading data:', error);
         this.categories = [];
         this.updateTabCounts();
         this.isLoading = false;
@@ -188,7 +220,7 @@ export class CategoryListComponent implements OnInit {
     if (this.categoryToDelete) {
       this.categoryService.deleteCategory(this.categoryToDelete.id).subscribe({
         next: () => {
-          this.loadCategories();
+          this.loadData();
           this.showDeleteModal = false;
           this.categoryToDelete = null;
         },

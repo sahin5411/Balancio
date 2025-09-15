@@ -90,6 +90,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadCategories();
     this.loadTransactions();
     this.loadBudgetData();
+    
+    // Listen for global transaction added events
+    window.addEventListener('transactionAdded', () => {
+      this.loadTransactions();
+    });
   }
 
   ngOnDestroy() {
@@ -160,6 +165,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // Update budget data after transactions are loaded
         this.updateBudgetWithTransactionData();
         this.isLoading = false;
+        console.log('Transactions loaded:', transactions.length, 'transactions');
+        console.log('Transaction counts - Total:', this.totalTransactionCount, 'Income:', this.incomeTransactionCount, 'Expense:', this.expenseTransactionCount);
       },
       error: (error) => {
         console.error('Error loading transactions:', error);

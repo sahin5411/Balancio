@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, catchError, of } from 'rxjs';
 import { ApiService } from './api.service';
+import { MockDataService } from './mock-data.service';
 import { Category } from '../models/category.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoryService {
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private mockDataService: MockDataService
+  ) {}
 
   getCategories(): Observable<Category[]> {
     return this.apiService.get<any[]>('categories').pipe(
@@ -20,7 +24,11 @@ export class CategoryService {
         userId: c.userId,
         createdAt: new Date(c.createdAt),
         updatedAt: new Date(c.updatedAt)
-      })))
+      }))),
+      catchError(error => {
+        console.warn('API not available, using mock data:', error);
+        return this.mockDataService.getMockCategories();
+      })
     );
   }
 

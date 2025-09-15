@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { GlobalTransactionModalComponent } from '../global-transaction-modal/global-transaction-modal.component';
+import { FloatingActionButtonComponent } from '../floating-action-button/floating-action-button.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent, NavbarComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, NavbarComponent, GlobalTransactionModalComponent, FloatingActionButtonComponent],
   template: `
     <div class="flex flex-col lg:flex-row h-screen bg-gray-100">
       <!-- Mobile Header -->
@@ -46,6 +48,12 @@ import { NavbarComponent } from '../navbar/navbar.component';
           <router-outlet></router-outlet>
         </main>
       </div>
+      
+      <!-- Global Transaction Modal -->
+      <app-global-transaction-modal></app-global-transaction-modal>
+      
+      <!-- Floating Action Button -->
+      <app-floating-action-button></app-floating-action-button>
     </div>
   `
 })

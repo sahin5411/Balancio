@@ -1,7 +1,8 @@
  import { Injectable } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map, tap, catchError, of } from 'rxjs';
 import { ApiService } from './api.service';
 import { NotificationService } from './notification.service';
+import { MockDataService } from './mock-data.service';
 import { Transaction } from '../models/transaction.model';
 
 @Injectable({
@@ -10,7 +11,8 @@ import { Transaction } from '../models/transaction.model';
 export class TransactionService {
   constructor(
     private apiService: ApiService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private mockDataService: MockDataService
   ) {}
 
   getTransactions(): Observable<Transaction[]> {
@@ -26,7 +28,11 @@ export class TransactionService {
         userId: t.userId,
         createdAt: new Date(t.createdAt),
         updatedAt: new Date(t.updatedAt)
-      })))
+      }))),
+      catchError(error => {
+        console.warn('API not available, using mock data:', error);
+        return this.mockDataService.getMockTransactions();
+      })
     );
   }
 
