@@ -1,4 +1,4 @@
-<div class="space-y-4 sm:space-y-6">
+<div class="space-y-4 sm:space-y-6 p-2 sm:p-0">
   <app-loader [isLoading]="isLoading"></app-loader>
   
   <!-- Summary Cards -->
@@ -60,31 +60,31 @@
     <!-- Charts Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       <!-- Expense Breakdown Chart -->
-      <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Expense Breakdown</h3>
-        <div class="h-48 sm:h-64 lg:h-80">
-          <app-expense-chart [transactions]="transactions"></app-expense-chart>
+      <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 min-h-0 flex flex-col">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex-shrink-0">Expense Breakdown</h3>
+        <div class="flex-1 min-h-[200px] sm:min-h-[240px] lg:min-h-[280px] relative">
+          <app-expense-chart [transactions]="transactions" class="absolute inset-0"></app-expense-chart>
         </div>
       </div>
 
       <!-- Income vs Expenses Chart -->
-      <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Income vs Expenses</h3>
-        <div class="h-48 sm:h-64 lg:h-80">
-          <app-income-expense-bar-chart [transactions]="transactions"></app-income-expense-bar-chart>
+      <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 min-h-0 flex flex-col">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex-shrink-0">Income vs Expenses</h3>
+        <div class="flex-1 min-h-[200px] sm:min-h-[250px] lg:min-h-[300px] relative">
+          <app-income-expense-bar-chart [transactions]="transactions" class="absolute inset-0"></app-income-expense-bar-chart>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Recent Transactions -->
-  <div class="bg-white rounded-lg shadow-sm">
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
     <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
       <h3 class="text-base sm:text-lg font-semibold text-gray-900">Recent Transactions</h3>
     </div>
-    <div class="p-4 sm:p-6">
+    <div class="p-3 sm:p-6">
       <div *ngIf="transactions.length === 0" class="text-center text-gray-500 py-6 sm:py-8">
-        <div class="w-12 h-12 mx-auto mb-3 text-gray-300">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 text-gray-300">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
           </svg>
@@ -92,7 +92,7 @@
         <p class="text-sm sm:text-base">No transactions found</p>
         <p class="text-xs sm:text-sm text-gray-400 mt-1">Add your first transaction to get started</p>
       </div>
-      <div *ngIf="transactions.length > 0" class="space-y-3 sm:space-y-4">
+      <div *ngIf="transactions.length > 0" class="space-y-2 sm:space-y-3">
         <div *ngFor="let transaction of transactions.slice(0, 5)" 
              class="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
           <div class="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
@@ -120,7 +120,7 @@
         </div>
         
         <!-- View All Button -->
-        <div class="text-center pt-2 sm:pt-4 border-t border-gray-100 mt-4">
+        <div class="text-center pt-3 sm:pt-4 border-t border-gray-100 mt-3 sm:mt-4">
           <button 
             routerLink="/transactions"
             class="text-blue-600 hover:text-blue-800 text-sm sm:text-base font-medium hover:underline transition-colors">

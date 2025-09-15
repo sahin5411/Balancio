@@ -1,8 +1,16 @@
 /* Floating Action Button Styles */
 
+/* Ensure component always appears on top */
+:host {
+  position: relative;
+  z-index: 9999 !important;
+}
+
 .fab-main {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  z-index: 10000 !important;
 }
 
 .fab-main:hover {
@@ -81,24 +89,72 @@
 
 /* Mobile responsive */
 @media (max-width: 640px) {
-  .fixed.bottom-6.right-6 {
-    bottom: 1rem;
-    right: 1rem;
+  /* Ensure FAB is always visible on mobile */
+  :host {
+    z-index: 9999 !important;
+    position: fixed !important;
   }
   
   .fab-main {
-    width: 3rem;
-    height: 3rem;
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25) !important;
+    z-index: 10000 !important;
+    position: fixed !important;
+  }
+  
+  .fab-menu-item {
+    animation: fabSlideInMobile 0.4s ease-out;
+    z-index: 9999 !important;
   }
   
   .fab-menu-item button {
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 3rem !important;
+    height: 3rem !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+    z-index: 9999 !important;
   }
   
   .fab-tooltip {
     font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.375rem 0.75rem;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 9999 !important;
+  }
+  
+  /* Enhanced mobile interaction area */
+  .touch-target {
+    min-width: 48px !important;
+    min-height: 48px !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Mobile-specific slide in animation */
+  @keyframes fabSlideInMobile {
+    from {
+      transform: translateX(120px) scale(0.8);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Force visibility on mobile */
+  app-floating-action-button,
+  .mobile-fab-visible {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 9999 !important;
+    position: relative !important;
+  }
+  
+  .mobile-fab-visible * {
+    z-index: 9999 !important;
   }
 }
 

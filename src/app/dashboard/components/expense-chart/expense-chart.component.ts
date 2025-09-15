@@ -68,7 +68,10 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
       series: [100],
       chart: {
         type: 'donut',
-        height: 280
+        height: 280,
+        toolbar: {
+          show: false
+        }
       },
       labels: ['No Data'],
       colors: ['#E5E7EB'],
@@ -76,12 +79,19 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
         position: 'right',
         offsetY: 0,
         height: 230,
-        fontSize: '12px'
+        fontSize: '12px',
+        markers: {
+          width: 8,
+          height: 8
+        }
       },
       dataLabels: {
         enabled: true,
         formatter: (val: number) => {
           return val.toFixed(1) + '%';
+        },
+        style: {
+          fontSize: '11px'
         }
       },
       plotOptions: {
@@ -94,6 +104,7 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
                 show: true,
                 showAlways: true,
                 label: 'Total Expenses',
+                fontSize: '14px',
                 formatter: () => {
                   return this.currencySymbol + this.totalExpenses.toLocaleString();
                 }
@@ -101,7 +112,51 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
             }
           }
         }
-      }
+      },
+      responsive: [
+        {
+          breakpoint: 640,
+          options: {
+            chart: {
+              height: 200
+            },
+            legend: {
+              position: 'bottom',
+              fontSize: '10px',
+              height: 'auto'
+            },
+            dataLabels: {
+              style: {
+                fontSize: '9px'
+              }
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '70%',
+                  labels: {
+                    total: {
+                      fontSize: '12px'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 240
+            },
+            legend: {
+              position: 'bottom',
+              fontSize: '11px'
+            }
+          }
+        }
+      ]
     };
 
     this.chart = new ApexCharts(this.chartContainer.nativeElement, options);

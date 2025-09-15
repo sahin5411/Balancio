@@ -10,7 +10,7 @@ declare var ApexCharts: any;
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="w-full h-80" #chartContainer></div>
+    <div class="w-full h-full min-h-[200px] sm:min-h-[250px] lg:min-h-[300px] relative overflow-hidden" #chartContainer></div>
   `
 })
 export class IncomeExpenseBarChartComponent implements OnChanges, AfterViewInit {
@@ -35,6 +35,9 @@ export class IncomeExpenseBarChartComponent implements OnChanges, AfterViewInit 
   private async initChart() {
     const ApexCharts = (await import('apexcharts')).default;
     
+    // Get container dimensions for responsive sizing
+    const containerHeight = 300;
+    
     const options = {
       series: [
         { name: 'Income', data: [0, 0, 0, 0, 0, 0] },
@@ -42,28 +45,97 @@ export class IncomeExpenseBarChartComponent implements OnChanges, AfterViewInit 
       ],
       chart: {
         type: 'bar',
-        height: 320
+        height: containerHeight,
+        toolbar: {
+          show: false
+        },
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800
+        }
       },
       plotOptions: {
         bar: {
           horizontal: false,
-          columnWidth: '55%'
+          columnWidth: '55%',
+          borderRadius: 4
         }
       },
       dataLabels: {
         enabled: false
       },
+      stroke: {
+        width: 0
+      },
       xaxis: {
-        categories: this.getLastSixMonths()
+        categories: this.getLastSixMonths(),
+        labels: {
+          style: {
+            fontSize: '12px'
+          }
+        }
       },
       yaxis: {
         labels: {
           formatter: (val: number) => {
             return this.currencySymbol + val.toLocaleString();
+          },
+          style: {
+            fontSize: '11px'
           }
         }
       },
-      colors: ['#10B981', '#EF4444']
+      colors: ['#10B981', '#EF4444'],
+      legend: {
+        position: 'top',
+        horizontalAlign: 'center',
+        fontSize: '12px',
+        markers: {
+          width: 8,
+          height: 8
+        }
+      },
+      grid: {
+        borderColor: '#f1f5f9',
+        strokeDashArray: 3
+      },
+      responsive: [
+        {
+          breakpoint: 640,
+          options: {
+            chart: {
+              height: 200
+            },
+            legend: {
+              position: 'bottom',
+              fontSize: '10px'
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                }
+              }
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '9px'
+                }
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 250
+            }
+          }
+        }
+      ]
     };
 
     this.chart = new ApexCharts(this.chartContainer.nativeElement, options);

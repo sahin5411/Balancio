@@ -1,42 +1,44 @@
 <!-- Floating Action Button -->
 <div 
   *ngIf="!isModalOpen"
-  class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40"
+  class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6"
+  style="z-index: 9999;"
   (click)="$event.stopPropagation()">
   
   <!-- Background overlay when menu is open -->
   <div 
     *ngIf="showMenu"
     (click)="closeMenu()"
-    class="fixed inset-0 bg-black bg-opacity-20 z-30"
-    style="margin: -100vh -100vw;">
+    class="fixed inset-0 bg-black bg-opacity-20"
+    style="z-index: 9998; margin: -100vh -100vw;">
   </div>
 
   <!-- FAB Menu Items -->
   <div 
     *ngIf="showMenu"
-    class="absolute bottom-14 sm:bottom-16 right-0 space-y-2 sm:space-y-3 z-40">
+    class="absolute bottom-14 sm:bottom-16 right-0 space-y-2 sm:space-y-3"
+    style="z-index: 9999;">
     
     <!-- Add Income Button -->
-    <div class="flex items-center space-x-2 sm:space-x-3">
-      <span class="bg-black text-white text-xs px-2 sm:px-3 py-1 rounded-lg opacity-80 whitespace-nowrap">
+    <div class="flex items-center space-x-2 sm:space-x-3 fab-menu-item">
+      <span class="bg-black text-white text-xs px-2 sm:px-3 py-1 rounded-lg opacity-80 whitespace-nowrap fab-tooltip">
         Add Income
       </span>
       <button
         (click)="addIncome()"
-        class="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
+        class="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center touch-target">
         <span class="material-icons text-base sm:text-lg">add</span>
       </button>
     </div>
 
     <!-- Add Expense Button -->
-    <div class="flex items-center space-x-2 sm:space-x-3">
-      <span class="bg-black text-white text-xs px-2 sm:px-3 py-1 rounded-lg opacity-80 whitespace-nowrap">
+    <div class="flex items-center space-x-2 sm:space-x-3 fab-menu-item">
+      <span class="bg-black text-white text-xs px-2 sm:px-3 py-1 rounded-lg opacity-80 whitespace-nowrap fab-tooltip">
         Add Expense
       </span>
       <button
         (click)="addExpense()"
-        class="w-10 h-10 sm:w-12 sm:h-12 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
+        class="w-10 h-10 sm:w-12 sm:h-12 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center touch-target">
         <span class="material-icons text-base sm:text-lg">remove</span>
       </button>
     </div>
@@ -46,7 +48,10 @@
   <button
     (click)="toggleMenu()"
     [class.rotate-45]="showMenu"
-    class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center fab-main">
+    class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center fab-main fab-ripple touch-target"
+    [attr.aria-label]="showMenu ? 'Close menu' : 'Open add transaction menu'"
+    [attr.aria-expanded]="showMenu"
+    style="z-index: 10000;">
     <span class="material-icons text-lg sm:text-xl">{{ showMenu ? 'close' : 'add' }}</span>
   </button>
 </div>

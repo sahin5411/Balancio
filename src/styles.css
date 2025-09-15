@@ -348,10 +348,30 @@
    MOBILE DEVICE SPECIFIC OPTIMIZATIONS
    ================= */
 
+/* Floating Action Button Global Visibility Fix */
+app-floating-action-button {
+  z-index: 9999 !important;
+  position: relative !important;
+}
+
+@media (max-width: 640px) {
+  app-floating-action-button {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 9999 !important;
+    position: relative !important;
+  }
+}
+
 /* iPhone specific */
 @supports (-webkit-touch-callout: none) {
   .ios-scroll-fix {
     -webkit-overflow-scrolling: touch;
+  }
+  
+  app-floating-action-button {
+    z-index: 9999 !important;
   }
 }
 
@@ -359,5 +379,9 @@
 @media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: .001dpcm) {
   .android-font-fix {
     font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+  }
+  
+  app-floating-action-button {
+    z-index: 9999 !important;
   }
 }
