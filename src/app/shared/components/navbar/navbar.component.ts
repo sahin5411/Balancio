@@ -7,6 +7,8 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../auth/auth.service';
 import { UserService } from '../../services/user.service';
 import { NotificationService, Notification } from '../../services/notification.service';
+import { ApiService } from '../../services/api.service';
+import { API_CONFIG } from '../../utils/constants';
 import { User } from '../../models/user.model';
 
 @Component({
@@ -35,7 +37,8 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private userService: UserService,
     private notificationService: NotificationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private apiService: ApiService
   ) { }
 
   ngOnInit(): void {
@@ -131,19 +134,15 @@ export class NavbarComponent implements OnInit {
   }
   
   performGlobalSearch(term: string): void {
-    const token = this.authService.getToken();
-    
     // Search transactions
-    this.http.get<any[]>('https://balancio-backend.vercel.app/api/transactions', {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
-      next: (transactions) => {
-        const filteredTransactions = transactions.filter(t => 
+    this.apiService.getWithAuth<any[]>(API_CONFIG.ENDPOINTS.TRANSACTIONS.BASE).subscribe({
+      next: (transactions: any[]) => {
+        const filteredTransactions = transactions.filter((t: any) => 
           t.description?.toLowerCase().includes(term.toLowerCase()) ||
           t.title?.toLowerCase().includes(term.toLowerCase())
         ).slice(0, 5);
         
-        this.searchResults = filteredTransactions.map(t => ({
+        this.searchResults = filteredTransactions.map((t: any) => ({
           type: 'transaction',
           title: t.description || t.title,
           subtitle: `${t.type} - ₹${t.amount}`,
@@ -153,7 +152,7 @@ export class NavbarComponent implements OnInit {
         this.showSearchResults = true;
         this.isSearching = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Search error:', error);
         this.searchResults = [];
         this.showSearchResults = false;

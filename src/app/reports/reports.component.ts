@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -6,6 +6,8 @@ import { AuthService } from '../auth/auth.service';
 import { UserService } from '../shared/services/user.service';
 import { CurrencyService } from '../shared/services/currency.service';
 import { NotificationService } from '../shared/services/notification.service';
+import { ApiService } from '../shared/services/api.service';
+import { API_CONFIG } from '../shared/utils/constants';
 import { LoaderComponent } from '../shared/components/loader/loader.component';
 import { Chart, registerables } from 'chart.js';
 
@@ -81,26 +83,6 @@ interface MonthlyReport {
           <canvas #savingsChart width="400" height="200"></canvas>
         </div>
       </div>
-
-      <!-- Test Budget Alert Button -->
-      <div class="bg-orange-50 rounded-lg shadow p-4 mb-6">
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="text-lg font-medium text-orange-800">🧪 Budget Alert Test</h3>
-            <p class="text-sm text-orange-600">Test if budget alert emails are working</p>
-          </div>
-          <button 
-            (click)="testBudgetAlert()"
-            [disabled]="isTestingAlert"
-            class="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2">
-            <svg *ngIf="isTestingAlert" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>{{ isTestingAlert ? 'Testing...' : 'Test Budget Alert' }}</span>
-          </button>
-        </div>
-      </div>
       
       <!-- Reports Table Section -->
       <div class="bg-white rounded-lg shadow">
@@ -173,7 +155,6 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   userReportFormat: string = 'excel';
   downloadingReports: Set<string> = new Set();
   currencySymbol: string = '₹';
-  isTestingAlert = false;
   
   selectedYear = '';
   selectedMonth = '';
@@ -201,7 +182,8 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     private authService: AuthService,
     private userService: UserService,
     private currencyService: CurrencyService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private apiService: ApiService
   ) {}
 
   ngOnInit() {
@@ -229,10 +211,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   loadReports() {
-    const token = this.authService.getToken();
-    this.http.get<MonthlyReport[]>('https://balancio-backend.vercel.app/api/reports/monthly', {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
+    this.apiService.getWithAuth<MonthlyReport[]>(API_CONFIG.ENDPOINTS.REPORTS.MONTHLY).subscribe({
       next: (reports) => {
         this.reports = reports;
         this.generateAvailableYears();
@@ -257,15 +236,11 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     this.downloadingReports.add(reportKey);
     
     const token = this.authService.getToken();
-    const url = `https://balancio-backend.vercel.app/api/reports/monthly/${report.year}/${report.monthNumber}/download`;
+    const downloadEndpoint = API_CONFIG.ENDPOINTS.REPORTS.DOWNLOAD(report.year, report.monthNumber);
     
-    console.log('Downloading report from:', url); // Debug log
+    console.log('Downloading report from:', this.apiService.getFullUrl(downloadEndpoint)); // Debug log
     
-    this.http.get(url, {
-      headers: { Authorization: `Bearer ${token}` },
-      responseType: 'blob',
-      observe: 'response' // Get full response to check headers
-    }).subscribe({
+    this.apiService.getBlobWithResponse(downloadEndpoint).subscribe({
       next: (response) => {
         console.log('Download response:', response); // Debug log
         
@@ -477,32 +452,4 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  testBudgetAlert() {
-    if (this.isTestingAlert) return;
-    
-    this.isTestingAlert = true;
-    const token = this.authService.getToken();
-    
-    this.http.post('https://balancio-backend.vercel.app/api/users/test-budget-alert', {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
-      next: (response: any) => {
-        this.notificationService.addNotification({
-          title: 'Test Successful',
-          message: response.message || 'Budget alert test email sent successfully',
-          type: 'success'
-        });
-        this.isTestingAlert = false;
-      },
-      error: (error) => {
-        console.error('Error testing budget alert:', error);
-        this.notificationService.addNotification({
-          title: 'Test Failed',
-          message: error.error?.message || 'Failed to send test budget alert email',
-          type: 'error'
-        });
-        this.isTestingAlert = false;
-      }
-    });
-  }
 }

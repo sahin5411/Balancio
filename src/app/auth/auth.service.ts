@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map, catchError, of } from 'rxjs';
 import { ApiService } from '../shared/services/api.service';
 import { User } from '../shared/models/user.model';
+import { API_CONFIG } from '../shared/utils/constants';
 
 @Injectable({
   providedIn: 'root'
@@ -82,11 +83,7 @@ export class AuthService {
 
   loginWithGoogle(): Observable<{ success: boolean; user?: User; message?: string }> {
     return new Observable(observer => {
-      const popup = window.open(
-        'https://balancio-backend.vercel.app/api/auth/google',
-        'google-login',
-        'width=500,height=600,scrollbars=yes,resizable=yes'
-      );
+      const popup = this.apiService.openAuthPopup(API_CONFIG.ENDPOINTS.AUTH.GOOGLE, 'google-login');
       
       const checkClosed = setInterval(() => {
         if (popup?.closed) {
@@ -105,11 +102,7 @@ export class AuthService {
 
   loginWithGitHub(): Observable<{ success: boolean; user?: User; message?: string }> {
     return new Observable(observer => {
-      const popup = window.open(
-        'https://balancio-backend.vercel.app/api/auth/github',
-        'github-login',
-        'width=500,height=600,scrollbars=yes,resizable=yes'
-      );
+      const popup = this.apiService.openAuthPopup(API_CONFIG.ENDPOINTS.AUTH.GITHUB, 'github-login');
       
       const checkClosed = setInterval(() => {
         if (popup?.closed) {

@@ -10,6 +10,8 @@ import { CurrencyService } from '../../shared/services/currency.service';
 import { BudgetService } from '../../shared/services/budget.service';
 import { TransactionService } from '../../shared/services/transaction.service';
 import { CategoryService } from '../../shared/services/category.service';
+import { ApiService } from '../../shared/services/api.service';
+import { API_CONFIG } from '../../shared/utils/constants';
 import { User } from '../../shared/models/user.model';
 import { MonthlyBudget, BudgetOverview } from '../../shared/models/budget.model';
 import { Transaction } from '../../shared/models/transaction.model';
@@ -109,7 +111,8 @@ export class ProfileViewComponent implements OnInit, OnDestroy {
     private currencyService: CurrencyService,
     private budgetService: BudgetService,
     private transactionService: TransactionService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private apiService: ApiService
   ) { }
 
   ngOnInit(): void {
@@ -234,11 +237,9 @@ export class ProfileViewComponent implements OnInit, OnDestroy {
     }
 
     const token = this.authService.getToken();
-    this.http.put('https://balancio-backend.vercel.app/api/users/change-password', {
+    this.apiService.putWithAuth(API_CONFIG.ENDPOINTS.USERS.CHANGE_PASSWORD, {
       currentPassword: this.passwordForm.currentPassword,
       newPassword: this.passwordForm.newPassword
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: () => {
         this.passwordLastChanged = new Date();
@@ -426,9 +427,7 @@ export class ProfileViewComponent implements OnInit, OnDestroy {
 
   loadUserStatistics(): void {
     // Load transaction statistics
-    this.http.get<any[]>('https://balancio-backend.vercel.app/api/transactions', {
-      headers: { Authorization: `Bearer ${this.authService.getToken()}` }
-    }).subscribe({
+    this.apiService.getWithAuth<any[]>(API_CONFIG.ENDPOINTS.TRANSACTIONS.BASE).subscribe({
       next: (transactions) => {
         this.userProfile.transactions = transactions.length;
         

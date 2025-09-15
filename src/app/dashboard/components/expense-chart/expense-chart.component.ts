@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../auth/auth.service';
 import { CurrencyService } from '../../../shared/services/currency.service';
+import { ApiService } from '../../../shared/services/api.service';
+import { API_CONFIG } from '../../../shared/utils/constants';
 import { Transaction } from '../../../shared/models/transaction.model';
 
 declare var ApexCharts: any;
@@ -29,7 +31,8 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private apiService: ApiService
   ) {}
 
   ngAfterViewInit() {
@@ -38,10 +41,7 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
   }
 
   loadCategories() {
-    const token = this.authService.getToken();
-    this.http.get<any[]>('https://balancio-backend.vercel.app/api/categories', {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
+    this.apiService.getWithAuth<any[]>(API_CONFIG.ENDPOINTS.CATEGORIES.BASE).subscribe({
       next: (categories) => {
         this.categories = categories;
         this.initChart();

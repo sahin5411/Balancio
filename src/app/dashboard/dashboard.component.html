@@ -5,45 +5,51 @@
     <app-income-card [amount]="totalIncome" [currencySymbol]="currencySymbol"></app-income-card>
     <app-expense-card [amount]="totalExpenses" [currencySymbol]="currencySymbol"></app-expense-card>
     <app-balance-card [amount]="balance" [currencySymbol]="currencySymbol"></app-balance-card>
+    <app-transaction-count-card 
+      [totalCount]="totalTransactionCount" 
+      [incomeCount]="incomeTransactionCount" 
+      [expenseCount]="expenseTransactionCount">
+    </app-transaction-count-card>
+  </div>
+
+  <!-- Budget Overview Section -->
+  <div *ngIf="budgetOverview && budgetOverview.budgetSet" class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-2">
+        <div class="p-2 rounded-lg bg-purple-100">
+          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">Monthly Budget Overview</h3>
+      </div>
+      <span [class]="getBudgetStatusClass()" class="text-sm font-medium px-3 py-1 rounded-full">
+        {{(budgetOverview.percentageUsed || 0).toFixed(1)}}% Used
+      </span>
+    </div>
     
-    <!-- Small Budget Card -->
-    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center space-x-2">
-          <div class="p-2 rounded-lg bg-purple-100">
-            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-            </svg>
-          </div>
-          <span class="text-sm font-medium text-gray-600">Budget</span>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div class="text-center">
+        <p class="text-2xl font-bold text-gray-900">{{formatCurrency(budgetOverview.budget || 0)}}</p>
+        <p class="text-sm text-gray-500">Monthly Budget</p>
       </div>
-      
-      <div *ngIf="budgetOverview && budgetOverview.budgetSet" class="space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="text-2xl font-bold text-gray-900">{{formatCurrency(budgetOverview.budget || 0)}}</span>
-          <span [class]="getBudgetStatusClass()" class="text-xs font-medium px-2 py-1 rounded-full">
-            {{(budgetOverview.percentageUsed || 0).toFixed(0)}}%
-          </span>
-        </div>
-        
-        <div class="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            [class]="getBudgetProgressClass()"
-            class="h-2 rounded-full transition-all duration-300"
-            [style.width.%]="Math.min(budgetOverview.percentageUsed || 0, 100)">
-          </div>
-        </div>
-        
-        <div class="flex justify-between text-xs text-gray-500">
-          <span>Spent: {{formatCurrency(budgetOverview.spent || 0)}}</span>
-          <span>Left: {{formatCurrency(budgetOverview.remaining || 0)}}</span>
-        </div>
+      <div class="text-center">
+        <p class="text-2xl font-bold text-red-600">{{formatCurrency(budgetOverview.spent || 0)}}</p>
+        <p class="text-sm text-gray-500">Spent This Month</p>
       </div>
-      
-      <div *ngIf="!budgetOverview || !budgetOverview.budgetSet" class="text-center py-2">
-        <span class="text-lg font-bold text-gray-400">--</span>
-        <p class="text-xs text-gray-500 mt-1">No budget set</p>
+      <div class="text-center">
+        <p class="text-2xl font-bold" [class.text-green-600]="(budgetOverview.remaining || 0) >= 0" [class.text-red-600]="(budgetOverview.remaining || 0) < 0">
+          {{formatCurrency(Math.abs(budgetOverview.remaining || 0))}}
+        </p>
+        <p class="text-sm text-gray-500">{{(budgetOverview.remaining || 0) >= 0 ? 'Remaining' : 'Over Budget'}}</p>
+      </div>
+    </div>
+    
+    <div class="w-full bg-gray-200 rounded-full h-3">
+      <div 
+        [class]="getBudgetProgressClass()"
+        class="h-3 rounded-full transition-all duration-300"
+        [style.width.%]="Math.min(budgetOverview.percentageUsed || 0, 100)">
       </div>
     </div>
   </div>
