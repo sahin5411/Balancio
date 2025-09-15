@@ -3,39 +3,39 @@
   *ngIf="isModalOpen" 
   class="fixed inset-0 z-50 overflow-y-auto"
   (click)="onBackdropClick($event)">
-  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+  <div class="flex items-center justify-center min-h-screen px-3 sm:px-4 pt-4 pb-20 text-center sm:block sm:p-0">
     <!-- Background overlay -->
-    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"></div>
+    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 backdrop-blur-sm"></div>
 
     <!-- Modal panel -->
-    <div class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl sm:max-w-lg">
+    <div class="inline-block w-full max-w-xs sm:max-w-md lg:max-w-lg p-4 sm:p-6 my-4 sm:my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center space-x-3">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
+        <div class="flex items-center space-x-2 sm:space-x-3">
           <div 
-            class="w-10 h-10 rounded-lg flex items-center justify-center"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center"
             [class.bg-red-100]="newTransaction.type === 'expense'"
             [class.bg-green-100]="newTransaction.type === 'income'">
             <span 
-              class="material-icons text-lg"
+              class="material-icons text-base sm:text-lg"
               [class.text-red-600]="newTransaction.type === 'expense'"
               [class.text-green-600]="newTransaction.type === 'income'">
               {{ newTransaction.type === 'expense' ? 'remove_circle' : 'add_circle' }}
             </span>
           </div>
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-900">
             Add {{ newTransaction.type === 'expense' ? 'Expense' : 'Income' }}
           </h3>
         </div>
         <button 
           (click)="closeModal()"
-          class="text-gray-400 hover:text-gray-600 transition-colors">
-          <span class="material-icons">close</span>
+          class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+          <span class="material-icons text-xl sm:text-2xl">close</span>
         </button>
       </div>
 
       <!-- Form -->
-      <form (ngSubmit)="addTransaction()" class="space-y-4">
+      <form (ngSubmit)="addTransaction()" class="space-y-3 sm:space-y-4">
         <!-- Transaction Type Toggle -->
         <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
           <button
@@ -45,7 +45,7 @@
             [class.text-gray-900]="newTransaction.type === 'expense'"
             [class.text-gray-600]="newTransaction.type !== 'expense'"
             [class.shadow-sm]="newTransaction.type === 'expense'"
-            class="flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 font-medium text-sm flex-1 justify-center">
+            class="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 rounded-md transition-all duration-200 font-medium text-xs sm:text-sm flex-1 justify-center">
             <span class="material-icons text-sm text-red-600">trending_down</span>
             <span>Expense</span>
           </button>
@@ -56,7 +56,7 @@
             [class.text-gray-900]="newTransaction.type === 'income'"
             [class.text-gray-600]="newTransaction.type !== 'income'"
             [class.shadow-sm]="newTransaction.type === 'income'"
-            class="flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 font-medium text-sm flex-1 justify-center">
+            class="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 rounded-md transition-all duration-200 font-medium text-xs sm:text-sm flex-1 justify-center">
             <span class="material-icons text-sm text-green-600">trending_up</span>
             <span>Income</span>
           </button>
@@ -64,7 +64,7 @@
 
         <!-- Title Field with Suggestions -->
         <div class="relative">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
             Title <span class="text-red-500">*</span>
           </label>
           <input
@@ -74,18 +74,18 @@
             (input)="onTitleInput($event)"
             (focus)="onTitleInput($event)"
             placeholder="Enter transaction title"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            class="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm sm:text-base"
             required>
           
           <!-- Suggestions Dropdown -->
           <div 
             *ngIf="showSuggestions && titleSuggestions.length > 0"
-            class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+            class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-32 sm:max-h-40 overflow-y-auto">
             <button
               type="button"
               *ngFor="let suggestion of titleSuggestions"
               (click)="selectSuggestion(suggestion)"
-              class="w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors text-sm">
+              class="w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors text-xs sm:text-sm">
               {{ suggestion }}
             </button>
           </div>
@@ -93,11 +93,11 @@
 
         <!-- Amount Field -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
             Amount <span class="text-red-500">*</span>
           </label>
           <div class="relative">
-            <span class="absolute left-3 top-2 text-gray-500">{{ currencySymbol }}</span>
+            <span class="absolute left-3 top-2 sm:top-2.5 text-gray-500 text-sm sm:text-base">{{ currencySymbol }}</span>
             <input
               type="number"
               [(ngModel)]="newTransaction.amount"
@@ -105,20 +105,20 @@
               step="0.01"
               min="0"
               placeholder="0.00"
-              class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+              class="w-full pl-7 sm:pl-8 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm sm:text-base"
               required>
           </div>
         </div>
 
         <!-- Category Field -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
             Category <span class="text-red-500">*</span>
           </label>
           <select
             [(ngModel)]="newTransaction.category"
             name="category"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            class="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm sm:text-base"
             required>
             <option value="">Select a category</option>
             <option 
@@ -131,19 +131,19 @@
 
         <!-- Date Field -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
             Date
           </label>
           <input
             type="date"
             [(ngModel)]="newTransaction.date"
             name="date"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+            class="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm sm:text-base">
         </div>
 
         <!-- Description Field (Optional) -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
             Description (Optional)
           </label>
           <textarea
@@ -151,15 +151,15 @@
             name="description"
             rows="2"
             placeholder="Additional details..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-none"></textarea>
+            class="w-full px-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-none text-sm sm:text-base"></textarea>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex space-x-3 pt-4">
+        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-2 sm:pt-4">
           <button
             type="button"
             (click)="closeModal()"
-            class="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            class="flex-1 px-4 py-2 sm:py-2.5 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base font-medium order-2 sm:order-1">
             Cancel
           </button>
           <button
@@ -169,8 +169,8 @@
             [class.hover:bg-blue-700]="!isLoading"
             [class.bg-gray-400]="isLoading"
             [class.cursor-not-allowed]="isLoading"
-            class="flex-1 px-4 py-2 text-white rounded-lg transition-colors flex items-center justify-center space-x-2">
-            <span *ngIf="isLoading" class="animate-spin material-icons text-sm">refresh</span>
+            class="flex-1 px-4 py-2 sm:py-2.5 text-white rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base font-medium order-1 sm:order-2">
+            <span *ngIf="isLoading" class="animate-spin material-icons text-sm sm:text-base">refresh</span>
             <span>{{ isLoading ? 'Adding...' : 'Add Transaction' }}</span>
           </button>
         </div>

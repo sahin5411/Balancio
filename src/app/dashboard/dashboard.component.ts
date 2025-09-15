@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { IncomeCardComponent } from './components/income-card/income-card.component';
 import { ExpenseCardComponent } from './components/expense-card/expense-card.component';
@@ -23,6 +24,7 @@ import { LoaderComponent } from '../shared/components/loader/loader.component';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     IncomeCardComponent,
     ExpenseCardComponent,
     BalanceCardComponent,

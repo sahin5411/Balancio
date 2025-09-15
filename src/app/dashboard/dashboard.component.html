@@ -1,7 +1,8 @@
-<div class="space-y-6">
+<div class="space-y-4 sm:space-y-6">
   <app-loader [isLoading]="isLoading"></app-loader>
+  
   <!-- Summary Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
     <app-income-card [amount]="totalIncome" [currencySymbol]="currencySymbol"></app-income-card>
     <app-expense-card [amount]="totalExpenses" [currencySymbol]="currencySymbol"></app-expense-card>
     <app-balance-card [amount]="balance" [currencySymbol]="currencySymbol"></app-balance-card>
@@ -13,63 +14,63 @@
   </div>
 
   <!-- Budget Overview Section -->
-  <div *ngIf="budgetOverview && budgetOverview.budgetSet" class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center space-x-2">
+  <div *ngIf="budgetOverview && budgetOverview.budgetSet" class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div class="flex items-center space-x-2 sm:space-x-3">
         <div class="p-2 rounded-lg bg-purple-100">
-          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900">Monthly Budget Overview</h3>
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900">Monthly Budget Overview</h3>
       </div>
-      <span [class]="getBudgetStatusClass()" class="text-sm font-medium px-3 py-1 rounded-full">
+      <span [class]="getBudgetStatusClass()" class="text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">
         {{(budgetOverview.percentageUsed || 0).toFixed(1)}}% Used
       </span>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-      <div class="text-center">
-        <p class="text-2xl font-bold text-gray-900">{{formatCurrency(budgetOverview.budget || 0)}}</p>
-        <p class="text-sm text-gray-500">Monthly Budget</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 sm:mb-6">
+      <div class="text-center p-3 sm:p-4 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+        <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{{formatCurrency(budgetOverview.budget || 0)}}</p>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">Monthly Budget</p>
       </div>
-      <div class="text-center">
-        <p class="text-2xl font-bold text-red-600">{{formatCurrency(budgetOverview.spent || 0)}}</p>
-        <p class="text-sm text-gray-500">Spent This Month</p>
+      <div class="text-center p-3 sm:p-4 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+        <p class="text-lg sm:text-xl lg:text-2xl font-bold text-red-600">{{formatCurrency(budgetOverview.spent || 0)}}</p>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">Spent This Month</p>
       </div>
-      <div class="text-center">
-        <p class="text-2xl font-bold" [class.text-green-600]="(budgetOverview.remaining || 0) >= 0" [class.text-red-600]="(budgetOverview.remaining || 0) < 0">
+      <div class="text-center p-3 sm:p-4 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+        <p class="text-lg sm:text-xl lg:text-2xl font-bold" [class.text-green-600]="(budgetOverview.remaining || 0) >= 0" [class.text-red-600]="(budgetOverview.remaining || 0) < 0">
           {{formatCurrency(Math.abs(budgetOverview.remaining || 0))}}
         </p>
-        <p class="text-sm text-gray-500">{{(budgetOverview.remaining || 0) >= 0 ? 'Remaining' : 'Over Budget'}}</p>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">{{(budgetOverview.remaining || 0) >= 0 ? 'Remaining' : 'Over Budget'}}</p>
       </div>
     </div>
     
-    <div class="w-full bg-gray-200 rounded-full h-3">
+    <div class="w-full bg-gray-200 rounded-full h-2 sm:h-3">
       <div 
         [class]="getBudgetProgressClass()"
-        class="h-3 rounded-full transition-all duration-300"
+        class="h-2 sm:h-3 rounded-full transition-all duration-300"
         [style.width.%]="Math.min(budgetOverview.percentageUsed || 0, 100)">
       </div>
     </div>
   </div>
 
   <!-- Charts Section -->
-  <div class="space-y-4 lg:space-y-6">
+  <div class="space-y-4 sm:space-y-6">
     <!-- Charts Grid -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       <!-- Expense Breakdown Chart -->
-      <div class="bg-white rounded-lg shadow p-4 lg:p-6">
-        <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
-        <div class="h-64 sm:h-80">
+      <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Expense Breakdown</h3>
+        <div class="h-48 sm:h-64 lg:h-80">
           <app-expense-chart [transactions]="transactions"></app-expense-chart>
         </div>
       </div>
 
       <!-- Income vs Expenses Chart -->
-      <div class="bg-white rounded-lg shadow p-4 lg:p-6">
-        <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-4">Income vs Expenses</h3>
-        <div class="h-64 sm:h-80">
+      <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Income vs Expenses</h3>
+        <div class="h-48 sm:h-64 lg:h-80">
           <app-income-expense-bar-chart [transactions]="transactions"></app-income-expense-bar-chart>
         </div>
       </div>
@@ -77,39 +78,54 @@
   </div>
 
   <!-- Recent Transactions -->
-  <div class="bg-white rounded-lg shadow">
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-semibold text-gray-900">Recent Transactions</h3>
+  <div class="bg-white rounded-lg shadow-sm">
+    <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+      <h3 class="text-base sm:text-lg font-semibold text-gray-900">Recent Transactions</h3>
     </div>
-    <div class="p-6">
-      <div *ngIf="transactions.length === 0" class="text-center text-gray-500 py-8">
-        No transactions found
+    <div class="p-4 sm:p-6">
+      <div *ngIf="transactions.length === 0" class="text-center text-gray-500 py-6 sm:py-8">
+        <div class="w-12 h-12 mx-auto mb-3 text-gray-300">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+        </div>
+        <p class="text-sm sm:text-base">No transactions found</p>
+        <p class="text-xs sm:text-sm text-gray-400 mt-1">Add your first transaction to get started</p>
       </div>
-      <div *ngIf="transactions.length > 0" class="space-y-4">
+      <div *ngIf="transactions.length > 0" class="space-y-3 sm:space-y-4">
         <div *ngFor="let transaction of transactions.slice(0, 5)" 
-             class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <div class="flex items-center">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center"
+             class="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <div class="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0"
                  [class.bg-green-100]="transaction.type === 'income'"
                  [class.bg-red-100]="transaction.type === 'expense'">
-              <span class="material-icons text-sm"
+              <span class="material-icons text-sm sm:text-base"
                     [class.text-green-600]="transaction.type === 'income'"
                     [class.text-red-600]="transaction.type === 'expense'">
                 {{ transaction.type === 'income' ? 'arrow_upward' : 'arrow_downward' }}
               </span>
             </div>
-            <div class="ml-4">
-              <p class="font-medium text-gray-900">{{ transaction.description }}</p>
-              <p class="text-sm text-gray-500">{{ transaction.date | date }}</p>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-900 text-sm sm:text-base truncate">{{ transaction.description }}</p>
+              <p class="text-xs sm:text-sm text-gray-500">{{ transaction.date | date:'MMM d, y' }}</p>
             </div>
           </div>
-          <div class="text-right">
-            <p class="font-semibold"
+          <div class="text-right flex-shrink-0 ml-2">
+            <p class="font-semibold text-sm sm:text-base"
                [class.text-green-600]="transaction.type === 'income'"
                [class.text-red-600]="transaction.type === 'expense'">
-              {{ transaction.type === 'income' ? '+' : '-' }}{{ currencySymbol }}{{ transaction.amount }}
+              {{ transaction.type === 'income' ? '+' : '-' }}{{ currencySymbol }}{{ transaction.amount | number:'1.0-2' }}
             </p>
           </div>
+        </div>
+        
+        <!-- View All Button -->
+        <div class="text-center pt-2 sm:pt-4 border-t border-gray-100 mt-4">
+          <button 
+            routerLink="/transactions"
+            class="text-blue-600 hover:text-blue-800 text-sm sm:text-base font-medium hover:underline transition-colors">
+            View all transactions
+          </button>
         </div>
       </div>
     </div>

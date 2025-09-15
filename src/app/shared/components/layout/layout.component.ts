@@ -11,7 +11,7 @@ import { FloatingActionButtonComponent } from '../floating-action-button/floatin
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidebarComponent, NavbarComponent, GlobalTransactionModalComponent, FloatingActionButtonComponent],
   template: `
-    <div class="flex flex-col lg:flex-row h-screen bg-gray-100">
+    <div class="flex flex-col lg:flex-row h-screen bg-gray-50">
       <!-- Mobile Header -->
       <div class="lg:hidden bg-white shadow-sm border-b">
         <app-navbar (mobileMenuToggle)="toggleMobileSidebar()"></app-navbar>
@@ -27,14 +27,14 @@ import { FloatingActionButtonComponent } from '../floating-action-button/floatin
         
         <!-- Sidebar -->
         <div 
-          class="relative w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out"
+          class="relative w-64 sm:w-72 bg-white shadow-xl transition-transform duration-300 ease-in-out"
           (click)="$event.stopPropagation()">
           <app-sidebar [isOpen]="isMobileSidebarOpen" (close)="closeMobileSidebar()"></app-sidebar>
         </div>
       </div>
       
       <!-- Desktop Sidebar -->
-      <app-sidebar class="hidden lg:block w-64 bg-white shadow-lg" [isOpen]="false"></app-sidebar>
+      <app-sidebar class="hidden lg:block w-64 xl:w-72 bg-white shadow-lg" [isOpen]="false"></app-sidebar>
       
       <!-- Main Content -->
       <div class="flex-1 flex flex-col overflow-hidden">
@@ -44,7 +44,7 @@ import { FloatingActionButtonComponent } from '../floating-action-button/floatin
         </div>
         
         <!-- Page Content -->
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-3 sm:p-4 lg:p-6">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-3 sm:p-4 lg:p-6 xl:p-8">
           <router-outlet></router-outlet>
         </main>
       </div>
