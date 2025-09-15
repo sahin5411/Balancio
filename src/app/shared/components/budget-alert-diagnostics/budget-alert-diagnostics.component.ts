@@ -162,7 +162,7 @@ export class BudgetAlertDiagnosticsComponent implements OnInit {
 
   loadDiagnostics() {
     const token = this.authService.getToken();
-    this.http.get<BudgetAlertDiagnostics>('http://localhost:3000/api/users/budget/alerts', {
+    this.http.get<BudgetAlertDiagnostics>('https://balancio-backend.vercel.app/api/users/budget/alerts', {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (data) => {
@@ -184,7 +184,7 @@ export class BudgetAlertDiagnosticsComponent implements OnInit {
     this.testResult = null;
     
     const token = this.authService.getToken();
-    this.http.post('http://localhost:3000/api/test/budget-alerts', {}, {
+    this.http.post('https://balancio-backend.vercel.app/api/test/budget-alerts', {}, {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (response: any) => {

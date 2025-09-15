@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  // private baseUrl = 'https://balancio-backend.vercel.app/api';
-    private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = 'https://balancio-backend.vercel.app/api';
+    // private baseUrl = 'https://balancio-backend.vercel.app/api';
 
 
   constructor(private http: HttpClient) {}

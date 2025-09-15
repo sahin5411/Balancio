@@ -234,7 +234,7 @@ export class ProfileViewComponent implements OnInit, OnDestroy {
     }
 
     const token = this.authService.getToken();
-    this.http.put('http://localhost:3000/api/users/change-password', {
+    this.http.put('https://balancio-backend.vercel.app/api/users/change-password', {
       currentPassword: this.passwordForm.currentPassword,
       newPassword: this.passwordForm.newPassword
     }, {
@@ -426,7 +426,7 @@ export class ProfileViewComponent implements OnInit, OnDestroy {
 
   loadUserStatistics(): void {
     // Load transaction statistics
-    this.http.get<any[]>('http://localhost:3000/api/transactions', {
+    this.http.get<any[]>('https://balancio-backend.vercel.app/api/transactions', {
       headers: { Authorization: `Bearer ${this.authService.getToken()}` }
     }).subscribe({
       next: (transactions) => {

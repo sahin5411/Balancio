@@ -83,7 +83,7 @@ export class AuthService {
   loginWithGoogle(): Observable<{ success: boolean; user?: User; message?: string }> {
     return new Observable(observer => {
       const popup = window.open(
-        'http://localhost:3000/api/auth/google',
+        'https://balancio-backend.vercel.app/api/auth/google',
         'google-login',
         'width=500,height=600,scrollbars=yes,resizable=yes'
       );
@@ -106,7 +106,7 @@ export class AuthService {
   loginWithGitHub(): Observable<{ success: boolean; user?: User; message?: string }> {
     return new Observable(observer => {
       const popup = window.open(
-        'http://localhost:3000/api/auth/github',
+        'https://balancio-backend.vercel.app/api/auth/github',
         'github-login',
         'width=500,height=600,scrollbars=yes,resizable=yes'
       );

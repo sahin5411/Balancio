@@ -230,7 +230,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
 
   loadReports() {
     const token = this.authService.getToken();
-    this.http.get<MonthlyReport[]>('http://localhost:3000/api/reports/monthly', {
+    this.http.get<MonthlyReport[]>('https://balancio-backend.vercel.app/api/reports/monthly', {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (reports) => {
@@ -257,7 +257,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     this.downloadingReports.add(reportKey);
     
     const token = this.authService.getToken();
-    const url = `http://localhost:3000/api/reports/monthly/${report.year}/${report.monthNumber}/download`;
+    const url = `https://balancio-backend.vercel.app/api/reports/monthly/${report.year}/${report.monthNumber}/download`;
     
     console.log('Downloading report from:', url); // Debug log
     
@@ -483,7 +483,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     this.isTestingAlert = true;
     const token = this.authService.getToken();
     
-    this.http.post('http://localhost:3000/api/users/test-budget-alert', {}, {
+    this.http.post('https://balancio-backend.vercel.app/api/users/test-budget-alert', {}, {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (response: any) => {

@@ -39,7 +39,7 @@ export class ExpenseChartComponent implements OnChanges, AfterViewInit {
 
   loadCategories() {
     const token = this.authService.getToken();
-    this.http.get<any[]>('http://localhost:3000/api/categories', {
+    this.http.get<any[]>('https://balancio-backend.vercel.app/api/categories', {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (categories) => {
