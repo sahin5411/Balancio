@@ -134,7 +134,7 @@ export class NavbarComponent implements OnInit {
     const token = this.authService.getToken();
     
     // Search transactions
-    this.http.get<any[]>('https://balancio-backend.vercel.app/api/transactions', {
+    this.http.get<any[]>('http://localhost:3000/api/transactions', {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (transactions) => {

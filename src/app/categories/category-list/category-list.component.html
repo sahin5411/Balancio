@@ -169,3 +169,16 @@
   (click)="closeMenu()"
   class="fixed inset-0 z-5">
 </div>
+
+<!-- Delete Category Confirmation Modal -->
+<app-confirmation-modal
+  [isVisible]="showDeleteModal"
+  title="Delete Category"
+  [message]="getDeleteMessage()"
+  confirmText="Delete Category"
+  cancelText="Cancel"
+  type="danger"
+  icon="delete"
+  (confirmed)="confirmDeleteCategory()"
+  (cancelled)="cancelDeleteCategory()">
+</app-confirmation-modal>

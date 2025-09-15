@@ -1,27 +1,71 @@
 <div class="space-y-6">
   <app-loader [isLoading]="isLoading"></app-loader>
   <!-- Summary Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
     <app-income-card [amount]="totalIncome" [currencySymbol]="currencySymbol"></app-income-card>
     <app-expense-card [amount]="totalExpenses" [currencySymbol]="currencySymbol"></app-expense-card>
     <app-balance-card [amount]="balance" [currencySymbol]="currencySymbol"></app-balance-card>
+    
+    <!-- Small Budget Card -->
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 rounded-lg bg-purple-100">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+          </div>
+          <span class="text-sm font-medium text-gray-600">Budget</span>
+        </div>
+      </div>
+      
+      <div *ngIf="budgetOverview && budgetOverview.budgetSet" class="space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-2xl font-bold text-gray-900">{{formatCurrency(budgetOverview.budget || 0)}}</span>
+          <span [class]="getBudgetStatusClass()" class="text-xs font-medium px-2 py-1 rounded-full">
+            {{(budgetOverview.percentageUsed || 0).toFixed(0)}}%
+          </span>
+        </div>
+        
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            [class]="getBudgetProgressClass()"
+            class="h-2 rounded-full transition-all duration-300"
+            [style.width.%]="Math.min(budgetOverview.percentageUsed || 0, 100)">
+          </div>
+        </div>
+        
+        <div class="flex justify-between text-xs text-gray-500">
+          <span>Spent: {{formatCurrency(budgetOverview.spent || 0)}}</span>
+          <span>Left: {{formatCurrency(budgetOverview.remaining || 0)}}</span>
+        </div>
+      </div>
+      
+      <div *ngIf="!budgetOverview || !budgetOverview.budgetSet" class="text-center py-2">
+        <span class="text-lg font-bold text-gray-400">--</span>
+        <p class="text-xs text-gray-500 mt-1">No budget set</p>
+      </div>
+    </div>
   </div>
 
   <!-- Charts Section -->
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
-    <!-- Expense Breakdown Chart -->
-    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
-      <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
-      <div class="h-64 sm:h-80">
-        <app-expense-chart [transactions]="transactions"></app-expense-chart>
+  <div class="space-y-4 lg:space-y-6">
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+      <!-- Expense Breakdown Chart -->
+      <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+        <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
+        <div class="h-64 sm:h-80">
+          <app-expense-chart [transactions]="transactions"></app-expense-chart>
+        </div>
       </div>
-    </div>
 
-    <!-- Income vs Expenses Chart -->
-    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
-      <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-4">Income vs Expenses</h3>
-      <div class="h-64 sm:h-80">
-        <app-income-expense-bar-chart [transactions]="transactions"></app-income-expense-bar-chart>
+      <!-- Income vs Expenses Chart -->
+      <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+        <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-4">Income vs Expenses</h3>
+        <div class="h-64 sm:h-80">
+          <app-income-expense-bar-chart [transactions]="transactions"></app-income-expense-bar-chart>
+        </div>
       </div>
     </div>
   </div>

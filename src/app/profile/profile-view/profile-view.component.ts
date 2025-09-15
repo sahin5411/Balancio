@@ -1,12 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { UserService } from '../../shared/services/user.service';
 import { CurrencyService } from '../../shared/services/currency.service';
+import { BudgetService } from '../../shared/services/budget.service';
+import { TransactionService } from '../../shared/services/transaction.service';
+import { CategoryService } from '../../shared/services/category.service';
 import { User } from '../../shared/models/user.model';
+import { MonthlyBudget, BudgetOverview } from '../../shared/models/budget.model';
+import { Transaction } from '../../shared/models/transaction.model';
+import { Category } from '../../shared/models/category.model';
 import { LoaderComponent } from '../../shared/components/loader/loader.component';
 
 interface UserProfile {
@@ -34,8 +41,17 @@ interface NotificationSettings {
   imports: [CommonModule, RouterModule, FormsModule,LoaderComponent],
   templateUrl:'./profile-view.component.html'
 })
-export class ProfileViewComponent implements OnInit {
+export class ProfileViewComponent implements OnInit, OnDestroy {
   isLoading:boolean = false;
+  
+  // Budget related properties
+  currentBudget: MonthlyBudget | null = null;
+  budgetOverview: BudgetOverview | null = null;
+  transactions: Transaction[] = [];
+  categories: Category[] = [];
+  budgetChartData: any[] = [];
+  
+  private destroy$ = new Subject<void>();
   userProfile: UserProfile = {
     fullName: '',
     email: '',
@@ -82,19 +98,32 @@ export class ProfileViewComponent implements OnInit {
   passwordLastChanged: Date = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000); // 2 months ago
   twoFactorEnabled: boolean = false;
   showLogoutModal: boolean = false;
+  
+  Math = Math; // Make Math available in template
 
   constructor(
     private authService: AuthService, 
     private router: Router,
     private userService: UserService,
     private http: HttpClient,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private budgetService: BudgetService,
+    private transactionService: TransactionService,
+    private categoryService: CategoryService
   ) { }
 
   ngOnInit(): void {
     this.currencySymbol = this.currencyService.getCurrentCurrency().symbol;
     this.isLoading = true;
     this.loadUserProfile();
+    this.loadBudgetData();
+    this.loadTransactions();
+    this.loadCategories();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadUserProfile(): void {
@@ -205,7 +234,7 @@ export class ProfileViewComponent implements OnInit {
     }
 
     const token = this.authService.getToken();
-    this.http.put('https://balancio-backend.vercel.app/users/change-password', {
+    this.http.put('http://localhost:3000/api/users/change-password', {
       currentPassword: this.passwordForm.currentPassword,
       newPassword: this.passwordForm.newPassword
     }, {
@@ -397,7 +426,7 @@ export class ProfileViewComponent implements OnInit {
 
   loadUserStatistics(): void {
     // Load transaction statistics
-    this.http.get<any[]>('https://balancio-backend.vercel.app/api/transactions', {
+    this.http.get<any[]>('http://localhost:3000/api/transactions', {
       headers: { Authorization: `Bearer ${this.authService.getToken()}` }
     }).subscribe({
       next: (transactions) => {
@@ -443,5 +472,193 @@ export class ProfileViewComponent implements OnInit {
 
   getInitials(name: string): string {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
+  // Budget related methods
+  loadBudgetData(): void {
+    this.budgetService.getBudget()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (budget) => {
+          this.currentBudget = budget;
+        },
+        error: (error) => {
+          console.error('Error loading budget:', error);
+        }
+      });
+
+    this.budgetService.getBudgetOverview()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (overview) => {
+          this.budgetOverview = overview;
+          // Update with real transaction data after both budget and transactions are loaded
+          this.updateBudgetWithTransactionData();
+        },
+        error: (error) => {
+          console.error('Error loading budget overview:', error);
+        }
+      });
+  }
+
+  formatCurrencyAmount(amount: number): string {
+    return this.budgetService.formatCurrency(amount, this.currentBudget?.currency || 'USD');
+  }
+
+  getBudgetStatusColorClass(): string {
+    if (!this.budgetOverview) return 'text-gray-600';
+    return this.budgetService.getBudgetStatusColor(
+      this.budgetOverview.percentageUsed || 0,
+      this.budgetOverview.thresholds
+    );
+  }
+
+  getBudgetProgressColorClass(): string {
+    if (!this.budgetOverview) return 'bg-gray-400';
+    return this.budgetService.getBudgetProgressColor(
+      this.budgetOverview.percentageUsed || 0,
+      this.budgetOverview.thresholds
+    );
+  }
+
+  getBudgetStatusMessage(): string {
+    if (!this.budgetOverview) return 'No budget data available';
+    return this.budgetService.getBudgetStatusMessage(this.budgetOverview);
+  }
+
+  loadTransactions(): void {
+    this.transactionService.getTransactions()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (transactions: Transaction[]) => {
+          this.transactions = transactions;
+          // Update budget data with actual transaction amounts
+          this.updateBudgetWithTransactionData();
+          this.prepareBudgetChartData();
+        },
+        error: (error: any) => {
+          console.error('Error loading transactions:', error);
+        }
+      });
+  }
+
+  private updateBudgetWithTransactionData(): void {
+    if (this.budgetOverview && this.transactions.length > 0) {
+      // Calculate current month expenses from actual transactions
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      
+      const currentMonthExpenses = this.transactions
+        .filter(t => t.type === 'expense')
+        .filter(t => {
+          const transactionDate = new Date(t.date);
+          return transactionDate.getMonth() === currentMonth && 
+                 transactionDate.getFullYear() === currentYear;
+        })
+        .reduce((sum, t) => sum + t.amount, 0);
+      
+      // Update budget overview with actual expense data
+      this.budgetOverview = {
+        ...this.budgetOverview,
+        spent: currentMonthExpenses,
+        remaining: (this.budgetOverview.budget || 0) - currentMonthExpenses,
+        percentageUsed: this.budgetOverview.budget ? (currentMonthExpenses / this.budgetOverview.budget) * 100 : 0
+      };
+      
+      console.log('Profile View - Updated budget overview with transaction data:', this.budgetOverview);
+    }
+  }
+
+  loadCategories(): void {
+    this.categoryService.getCategories()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (categories: Category[]) => {
+          this.categories = categories;
+        },
+        error: (error: any) => {
+          console.error('Error loading categories:', error);
+        }
+      });
+  }
+
+  prepareBudgetChartData(): void {
+    if (!this.budgetOverview || !this.transactions.length) return;
+    
+    // Get last 6 months data
+    const months = this.getLastSixMonths();
+    this.budgetChartData = months.map(month => {
+      const monthTransactions = this.transactions.filter(t => {
+        const transactionDate = new Date(t.date);
+        return transactionDate.getMonth() === month.index && 
+               transactionDate.getFullYear() === month.year;
+      });
+      
+      const expenses = monthTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      
+      return {
+        month: month.name,
+        budget: this.budgetOverview?.budget || 0,
+        expenses: expenses,
+        remaining: (this.budgetOverview?.budget || 0) - expenses
+      };
+    });
+  }
+
+  getLastSixMonths() {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        name: date.toLocaleDateString('en-US', { month: 'short' }),
+        index: date.getMonth(),
+        year: date.getFullYear()
+      });
+    }
+    
+    return months;
+  }
+
+  getChartBarHeight(value: number): number {
+    if (!this.budgetChartData.length) return 0;
+    const maxValue = Math.max(
+      ...this.budgetChartData.map(d => Math.max(d.budget, d.expenses))
+    );
+    return maxValue > 0 ? (value / maxValue) * 100 : 0;
+  }
+
+  getTopExpenseCategories() {
+    if (!this.transactions.length || !this.categories.length) return [];
+    
+    // Get current month expenses
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    
+    const currentMonthExpenses = this.transactions.filter(t => {
+      const transactionDate = new Date(t.date);
+      return t.type === 'expense' && 
+             transactionDate.getMonth() === currentMonth && 
+             transactionDate.getFullYear() === currentYear;
+    });
+    
+    // Group by category and calculate totals
+    const categoryTotals = currentMonthExpenses.reduce((acc, expense) => {
+      // Find the category name by ID
+      const category = this.categories.find(cat => cat.id === expense.categoryId);
+      const categoryName = category ? category.name : 'Uncategorized';
+      
+      acc[categoryName] = (acc[categoryName] || 0) + expense.amount;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    // Convert to array and sort by amount (descending)
+    return Object.entries(categoryTotals)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 3); // Top 3 categories
   }
 }

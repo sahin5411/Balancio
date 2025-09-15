@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../shared/services/user.service';
 import { CurrencyService } from '../shared/services/currency.service';
+import { NotificationService } from '../shared/services/notification.service';
 import { LoaderComponent } from '../shared/components/loader/loader.component';
 import { Chart, registerables } from 'chart.js';
 
@@ -81,7 +82,28 @@ interface MonthlyReport {
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow overflow-hidden">
+      <!-- Test Budget Alert Button -->
+      <div class="bg-orange-50 rounded-lg shadow p-4 mb-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-lg font-medium text-orange-800">🧪 Budget Alert Test</h3>
+            <p class="text-sm text-orange-600">Test if budget alert emails are working</p>
+          </div>
+          <button 
+            (click)="testBudgetAlert()"
+            [disabled]="isTestingAlert"
+            class="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2">
+            <svg *ngIf="isTestingAlert" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>{{ isTestingAlert ? 'Testing...' : 'Test Budget Alert' }}</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Reports Table Section -->
+      <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
           <h2 class="text-lg font-medium text-gray-900">Available Reports</h2>
         </div>
@@ -151,6 +173,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   userReportFormat: string = 'excel';
   downloadingReports: Set<string> = new Set();
   currencySymbol: string = '₹';
+  isTestingAlert = false;
   
   selectedYear = '';
   selectedMonth = '';
@@ -177,7 +200,8 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private authService: AuthService,
     private userService: UserService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -206,7 +230,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
 
   loadReports() {
     const token = this.authService.getToken();
-    this.http.get<MonthlyReport[]>('https://balancio-backend.vercel.app/api/reports/monthly', {
+    this.http.get<MonthlyReport[]>('http://localhost:3000/api/reports/monthly', {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: (reports) => {
@@ -233,28 +257,81 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     this.downloadingReports.add(reportKey);
     
     const token = this.authService.getToken();
-    const url = `https://balancio-backend.vercel.app/api/reports/monthly/${report.year}/${report.monthNumber}/download`;
+    const url = `http://localhost:3000/api/reports/monthly/${report.year}/${report.monthNumber}/download`;
+    
+    console.log('Downloading report from:', url); // Debug log
     
     this.http.get(url, {
       headers: { Authorization: `Bearer ${token}` },
-      responseType: 'blob'
+      responseType: 'blob',
+      observe: 'response' // Get full response to check headers
     }).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
+      next: (response) => {
+        console.log('Download response:', response); // Debug log
+        
+        const blob = response.body;
+        if (!blob) {
+          throw new Error('No file content received');
+        }
+        
+        // Check if blob is valid
+        if (blob.size === 0) {
+          throw new Error('Empty file received');
+        }
+        
+        const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = url;
+        link.href = downloadUrl;
+        
         // Use user's preferred format for filename
         const extension = this.userReportFormat === 'pdf' ? 'pdf' : 'xlsx';
         link.download = `Monthly-Report-${report.month.replace(' ', '-')}.${extension}`;
+        
+        // Add to DOM temporarily to ensure click works
+        document.body.appendChild(link);
         link.click();
-        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+        
+        window.URL.revokeObjectURL(downloadUrl);
+        this.downloadingReports.delete(reportKey);
+        
+        // Add success notification
+        this.notificationService.addNotification({
+          title: 'Download Successful',
+          message: `Report for ${report.month} has been downloaded successfully`,
+          type: 'success'
+        });
       },
       error: (error) => {
         console.error('Error downloading report:', error);
+        console.error('Error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          error: error.error,
+          message: error.message
+        });
+        
+        // Add user notification for better error handling
+        let errorMessage = 'Please try again';
+        if (error.status === 404) {
+          errorMessage = 'No data available for this month';
+        } else if (error.status === 401) {
+          errorMessage = 'Please log in again';
+        } else if (error.status === 500) {
+          errorMessage = 'Server error. Please contact support';
+        } else if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        }
+        
+        this.notificationService.addNotification({
+          title: 'Download Failed',
+          message: `Failed to download report: ${errorMessage}`,
+          type: 'error'
+        });
         this.downloadingReports.delete(reportKey);
       },
       complete: () => {
-        this.downloadingReports.delete(reportKey);
+        // Already handled in next/error callbacks
       }
     });
   }
@@ -396,6 +473,35 @@ export class ReportsComponent implements OnInit, AfterViewInit {
             }
           }
         }
+      }
+    });
+  }
+
+  testBudgetAlert() {
+    if (this.isTestingAlert) return;
+    
+    this.isTestingAlert = true;
+    const token = this.authService.getToken();
+    
+    this.http.post('http://localhost:3000/api/users/test-budget-alert', {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: (response: any) => {
+        this.notificationService.addNotification({
+          title: 'Test Successful',
+          message: response.message || 'Budget alert test email sent successfully',
+          type: 'success'
+        });
+        this.isTestingAlert = false;
+      },
+      error: (error) => {
+        console.error('Error testing budget alert:', error);
+        this.notificationService.addNotification({
+          title: 'Test Failed',
+          message: error.error?.message || 'Failed to send test budget alert email',
+          type: 'error'
+        });
+        this.isTestingAlert = false;
       }
     });
   }

@@ -1,10 +1,6 @@
-- [x] Create loader.service.ts in shared/services
-- [x] Create loader component in shared/components/loader (ts, html, css)
-- [x] Create loader.interceptor.ts in shared/interceptors
-- [x] Update app.config.ts to provide the interceptor
-- [x] Update app.component.ts to import LoaderComponent
-- [x] Update app.component.html to include <app-loader>
-- [x] Update transaction-list.component.ts to use local loader
-- [x] Update category-list.component.ts to use local loader
-- [x] Update reports.component.ts to use local loader
-- [ ] Update other components with initial data loading
+# Auth Guard Update TODO
+
+- [x] Update `app.routes.ts` to add `canActivate: [AuthGuard]` and `data: { requiresAuth: false }` to the auth routes parent.
+- [x] Update `app.routes.ts` to add `data: { requiresAuth: true }` to the protected routes parent.
+- [x] Update `auth.guard.ts` to implement logic checking `requiresAuth` data and redirect accordingly.
+- [x] Test navigation scenarios to ensure correct redirects.

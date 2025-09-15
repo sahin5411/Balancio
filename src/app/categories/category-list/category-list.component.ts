@@ -5,6 +5,7 @@ import { CategoryService } from '../../shared/services/category.service';
 import { CurrencyService } from '../../shared/services/currency.service';
 import { Category as CategoryModel } from '../../shared/models/category.model';
 import { LoaderComponent } from '../../shared/components/loader/loader.component';
+import { ConfirmationModalComponent } from '../../shared/components/confirmation-modal/confirmation-modal.component';
 interface Category {
   id: string;
   name: string;
@@ -26,7 +27,7 @@ interface CategoryStats {
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, LoaderComponent],
+  imports: [CommonModule, RouterModule, LoaderComponent, ConfirmationModalComponent],
   templateUrl: './category-list.component.html',
   styleUrls: ['./category-list.component.scss']
 })
@@ -34,6 +35,8 @@ export class CategoryListComponent implements OnInit {
   isLoading = false;
   activeTab: 'all' | 'expense' | 'income' = 'all';
   showMenuFor: string | null = null;
+  showDeleteModal = false;
+  categoryToDelete: Category | null = null;
 
   categoryTabs = [
     { key: 'all' as const, label: 'All Categories', icon: 'fas fa-th', color: '#6b7280', count: 7 },
@@ -175,17 +178,38 @@ export class CategoryListComponent implements OnInit {
   deleteCategory(categoryId: string): void {
     this.closeMenu();
     const category = this.categories.find(cat => cat.id === categoryId);
-    if (category && confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
-      this.categoryService.deleteCategory(categoryId).subscribe({
+    if (category) {
+      this.categoryToDelete = category;
+      this.showDeleteModal = true;
+    }
+  }
+  
+  confirmDeleteCategory(): void {
+    if (this.categoryToDelete) {
+      this.categoryService.deleteCategory(this.categoryToDelete.id).subscribe({
         next: () => {
           this.loadCategories();
+          this.showDeleteModal = false;
+          this.categoryToDelete = null;
         },
         error: (error) => {
           console.error('Error deleting category:', error);
           alert('Failed to delete category');
+          this.showDeleteModal = false;
+          this.categoryToDelete = null;
         }
       });
     }
+  }
+  
+  cancelDeleteCategory(): void {
+    this.showDeleteModal = false;
+    this.categoryToDelete = null;
+  }
+  
+  getDeleteMessage(): string {
+    if (!this.categoryToDelete) return '';
+    return `Are you sure you want to delete "${this.categoryToDelete.name}"? This action cannot be undone and will affect all related transactions.`;
   }
 
   getProperIcon(type: string, name: string): string {

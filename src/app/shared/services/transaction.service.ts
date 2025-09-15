@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+ import { Injectable } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { NotificationService } from './notification.service';
@@ -114,5 +114,9 @@ export class TransactionService {
         });
       })
     );
+  }
+
+  exportTransactions(fileType: string): Observable<Blob> {
+    return this.apiService.getBlob(`transactions/export?fileType=${fileType}`);
   }
 }

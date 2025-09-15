@@ -26,11 +26,9 @@ export class CurrencyService {
     // For testing - you can manually set country here
     const manualCountry = 'IN'; // Change this to test different countries
     const userCountry = manualCountry || this.getUserCountry();
-    
-    console.log('Using country:', userCountry);
+
     const currency = this.currencyMap[userCountry] || { symbol: '$', code: 'USD' };
-    console.log('Currency:', currency);
-    
+
     return currency;
   }
 

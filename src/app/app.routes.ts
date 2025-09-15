@@ -11,6 +11,8 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./auth/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    canActivate: [AuthGuard],
+    data: { requiresAuth: false },
     children: [
       {
         path: 'login',
@@ -31,6 +33,7 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('./shared/components/layout/layout.component').then(m => m.LayoutComponent),
     canActivate: [AuthGuard],
+    data: { requiresAuth: true },
     children: [
       {
         path: 'dashboard',

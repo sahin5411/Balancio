@@ -6,7 +6,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'https://balancio-backend.vercel.app/api';
+  // private baseUrl = 'https://balancio-backend.vercel.app/api';
+    private baseUrl = 'http://localhost:3000/api';
+
 
   constructor(private http: HttpClient) {}
 
@@ -20,6 +22,10 @@ export class ApiService {
 
   get<T>(endpoint: string): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}/${endpoint}`, { headers: this.getHeaders() });
+  }
+
+  getBlob(endpoint: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${endpoint}`, { headers: this.getHeaders(), responseType: 'blob' });
   }
 
   post<T>(endpoint: string, data: any): Observable<T> {

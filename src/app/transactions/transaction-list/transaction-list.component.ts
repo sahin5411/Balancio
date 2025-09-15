@@ -279,9 +279,29 @@ export class TransactionListComponent implements OnInit {
     this.closeActionsMenu();
   }
 
-  exportTransactions() {
-    console.log('Export transactions');
-  }
+exportTransactions() {
+  // Default to Excel export
+  const fileType = 'excel'; // or 'pdf' - could be made dynamic if needed
+
+  this.isLoading = true;
+  this.transactionService.exportTransactions(fileType).subscribe({
+    next: (response: Blob) => {
+      this.isLoading = false;
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement('a');
+      link.href = url;
+      const fileExtension = fileType === 'excel' ? 'xlsx' : 'pdf';
+      link.download = `transactions_export.${fileExtension}`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: (error) => {
+      this.isLoading = false;
+      console.error('Error exporting transactions:', error);
+      alert('Failed to export transactions');
+    }
+  });
+}
 
   openAddModal() {
     this.showAddModal = true;
