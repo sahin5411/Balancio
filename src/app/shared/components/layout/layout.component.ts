@@ -1,16 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { GlobalTransactionModalComponent } from '../global-transaction-modal/global-transaction-modal.component';
 import { FloatingActionButtonComponent } from '../floating-action-button/floating-action-button.component';
+import { PwaInstallComponent } from '../pwa-install/pwa-install.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent, NavbarComponent, GlobalTransactionModalComponent, FloatingActionButtonComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, NavbarComponent, GlobalTransactionModalComponent, FloatingActionButtonComponent, PwaInstallComponent],
   template: `
+    <!-- PWA Install Banner -->
+    <app-pwa-install [showInstallBanner]="true" [showInlineButton]="true"></app-pwa-install>
+    
     <div class="flex flex-col lg:flex-row h-screen bg-gray-50">
       <!-- Mobile Header -->
       <div class="lg:hidden bg-white shadow-sm border-b">
@@ -57,8 +61,12 @@ import { FloatingActionButtonComponent } from '../floating-action-button/floatin
     </div>
   `
 })
-export class LayoutComponent {
+export class LayoutComponent implements AfterViewInit {
   isMobileSidebarOpen = false;
+
+  ngAfterViewInit(): void {
+    // Layout component initialized
+  }
 
   toggleMobileSidebar() {
     this.isMobileSidebarOpen = !this.isMobileSidebarOpen;

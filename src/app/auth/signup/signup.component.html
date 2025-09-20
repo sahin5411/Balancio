@@ -1,8 +1,8 @@
 <div class="h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
   <div class="max-w-sm sm:max-w-md w-full">
     <!-- Logo/Brand -->
-    <div class="text-center mb-4 sm:mb-6">
-      <div class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-4 shadow-lg">
+    <div class="text-center mb-6 sm:mb-8">
+      <div class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
         <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
           <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
         </svg>
@@ -11,60 +11,60 @@
       <p class="text-white/70 text-sm sm:text-base">Personal Finance Manager</p>
     </div>
     
-    <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
       <div class="text-center mb-4 sm:mb-6">
         <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
           Create Account
         </h2>
         <p class="text-gray-600 text-sm sm:text-base">
-          Join Balancio to manage your finances
+          Sign up to start managing your finances
         </p>
       </div>
     
-      <form class="space-y-3 sm:space-y-4" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-        <div class="space-y-2 sm:space-y-3">
-          <div class="grid grid-cols-2 gap-2 sm:gap-4">
+      <form class="space-y-4 sm:space-y-6" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div class="space-y-3 sm:space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+              <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">First Name</label>
               <input
                 id="firstName"
                 name="firstName"
                 type="text"
                 formControlName="firstName"
                 required
-                class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm"
-                placeholder="First name"
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm sm:text-base"
+                placeholder="Enter your first name"
               >
             </div>
             <div>
-              <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+              <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Last Name</label>
               <input
                 id="lastName"
                 name="lastName"
                 type="text"
                 formControlName="lastName"
                 required
-                class="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm"
-                placeholder="Last name"
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm sm:text-base"
+                placeholder="Enter your last name"
               >
             </div>
           </div>
           
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Email Address</label>
             <input
               id="email"
               name="email"
               type="email"
               formControlName="email"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm"
+              class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm sm:text-base"
               placeholder="Enter your email"
             >
           </div>
           
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Password</label>
             <div class="relative">
               <input
                 id="password"
@@ -72,68 +72,36 @@
                 [type]="showPassword ? 'text' : 'password'"
                 formControlName="password"
                 required
-                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm"
-                placeholder="Create password"
+                class="w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm sm:text-base"
+                placeholder="Create a password"
               >
               <button
                 type="button"
                 (click)="togglePasswordVisibility()"
                 class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
               >
-                <svg *ngIf="!showPassword" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg *ngIf="!showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                <svg *ngIf="showPassword" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg *ngIf="showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                   <line x1="1" y1="1" x2="23" y2="23"></line>
                 </svg>
               </button>
             </div>
-          </div>
-          
-          <div>
-            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-            <div class="relative">
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                [type]="showConfirmPassword ? 'text' : 'password'"
-                formControlName="confirmPassword"
-                required
-                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 focus:bg-white text-sm"
-                placeholder="Confirm password"
-              >
-              <button
-                type="button"
-                (click)="toggleConfirmPasswordVisibility()"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-              >
-                <svg *ngIf="!showConfirmPassword" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-                <svg *ngIf="showConfirmPassword" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                  <line x1="1" y1="1" x2="23" y2="23"></line>
-                </svg>
-              </button>
-            </div>
+            <p class="mt-1 text-xs text-gray-500">Password must be at least 6 characters</p>
           </div>
         </div>
 
-        <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm">
+        <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-600 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm">
           {{ errorMessage }}
-        </div>
-
-        <div *ngIf="signupForm.errors?.['passwordMismatch']" class="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm">
-          Passwords do not match
         </div>
 
         <button
           type="submit"
           [disabled]="!signupForm.valid || isLoading"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 sm:py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 sm:py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
         >
           <span *ngIf="isLoading" class="mr-2">
             <svg class="animate-spin h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24">
@@ -141,7 +109,7 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </span>
-          {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+          {{ isLoading ? 'Creating Account...' : 'Sign Up' }}
         </button>
 
         <div class="relative">
@@ -149,7 +117,7 @@
             <div class="w-full border-t border-gray-300"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-white text-gray-500">Or sign up with</span>
+            <span class="px-2 bg-white text-gray-500">Or continue with</span>
           </div>
         </div>
 
@@ -182,6 +150,9 @@
           <p class="text-gray-600 text-xs sm:text-sm">
             Already have an account?
             <a routerLink="/login" class="font-medium text-blue-600 hover:text-blue-500 ml-1">Sign in</a>
+          </p>
+          <p class="text-gray-600 text-xs sm:text-sm mt-1">
+            <a routerLink="/forgot-password" class="font-medium text-blue-600 hover:text-blue-500">Forgot your password?</a>
           </p>
         </div>
       </form>

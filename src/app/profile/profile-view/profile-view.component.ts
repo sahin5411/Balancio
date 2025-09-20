@@ -17,6 +17,7 @@ import { MonthlyBudget, BudgetOverview } from '../../shared/models/budget.model'
 import { Transaction } from '../../shared/models/transaction.model';
 import { Category } from '../../shared/models/category.model';
 import { LoaderComponent } from '../../shared/components/loader/loader.component';
+import { PwaInstallComponent } from '../../shared/components/pwa-install/pwa-install.component';
 
 interface UserProfile {
   fullName: string;
@@ -40,7 +41,7 @@ interface NotificationSettings {
 @Component({
   selector: 'app-profile-view',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule,LoaderComponent],
+  imports: [CommonModule, RouterModule, FormsModule,LoaderComponent, PwaInstallComponent],
   templateUrl:'./profile-view.component.html'
 })
 export class ProfileViewComponent implements OnInit, OnDestroy {

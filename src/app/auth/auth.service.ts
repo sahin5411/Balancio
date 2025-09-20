@@ -13,7 +13,7 @@ export class AuthService {
   constructor(private apiService: ApiService) {}
 
   login(email: string, password: string): Observable<{ success: boolean; user?: User; message?: string }> {
-    return this.apiService.post<{ token: string; user: any }>('auth/login', { email, password })
+    return this.apiService.post<{ token: string; user: any }>(API_CONFIG.ENDPOINTS.AUTH.LOGIN, { email, password })
       .pipe(
         map(response => {
           localStorage.setItem('token', response.token);
@@ -33,7 +33,7 @@ export class AuthService {
   }
 
   signup(userData: any): Observable<{ success: boolean; user?: User; message?: string }> {
-    return this.apiService.post<{ token: string; user: any }>('auth/register', {
+    return this.apiService.post<{ token: string; user: any }>(API_CONFIG.ENDPOINTS.AUTH.SIGNUP, {
       email: userData.email,
       password: userData.password,
       name: `${userData.firstName} ${userData.lastName}`
@@ -53,6 +53,26 @@ export class AuthService {
       }),
       catchError(error => of({ success: false, message: error.error?.message || 'Signup failed' }))
     );
+  }
+
+  forgotPassword(email: string): Observable<{ success: boolean; message?: string }> {
+    return this.apiService.post<{ message: string }>(API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD, { email })
+      .pipe(
+        map(response => {
+          return { success: true, message: response.message };
+        }),
+        catchError(error => of({ success: false, message: error.error?.message || 'Failed to send password reset instructions' }))
+      );
+  }
+
+  resetPassword(token: string, password: string): Observable<{ success: boolean; message?: string }> {
+    return this.apiService.post<{ message: string }>(API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD, { token, password })
+      .pipe(
+        map(response => {
+          return { success: true, message: response.message };
+        }),
+        catchError(error => of({ success: false, message: error.error?.message || 'Failed to reset password' }))
+      );
   }
 
   logout(): void {

@@ -14,10 +14,10 @@ import { Transaction } from '../../shared/models/transaction.model';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ConfirmationModalComponent],
   template: `
-    <div class="max-w-4xl mx-auto p-6 space-y-8">
+    <div class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
 
       <!-- Budget Management Section -->
-      <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
         <!-- Header -->
         <div class="mb-6">
           <h2 class="text-2xl font-bold text-gray-800 mb-2">Monthly Budget Management</h2>
@@ -25,8 +25,8 @@ import { Transaction } from '../../shared/models/transaction.model';
         </div>
 
         <!-- Budget Status Overview -->
-        <div *ngIf="budgetOverview && budgetOverview.budgetSet" class="mb-8">
-          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+        <div *ngIf="budgetOverview && budgetOverview.budgetSet" class="mb-6 sm:mb-8">
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 sm:p-6 border border-blue-200">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Current Budget Status</h3>
             
             <!-- Progress Bar -->
@@ -47,7 +47,7 @@ import { Transaction } from '../../shared/models/transaction.model';
             </div>
 
             <!-- Budget Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="text-center">
                 <p class="text-2xl font-bold text-gray-800">{{formatCurrency(budgetOverview.budget || 0)}}</p>
                 <p class="text-sm text-gray-600">Monthly Budget</p>
@@ -126,13 +126,13 @@ import { Transaction } from '../../shared/models/transaction.model';
           </div>
 
           <!-- Alert Thresholds -->
-          <div class="border border-gray-200 rounded-lg p-4">
+          <div class="border border-gray-200 rounded-lg p-3 sm:p-4">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Alert Thresholds</h3>
             <p class="text-sm text-gray-600 mb-4">
               Set when you want to receive email alerts as you approach your budget limit.
             </p>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Warning Threshold -->
               <div>
                 <label for="warningThreshold" class="block text-sm font-medium text-gray-700 mb-2">
@@ -199,7 +199,7 @@ import { Transaction } from '../../shared/models/transaction.model';
         </form>
 
         <!-- Tips Section -->
-        <div class="mt-8 bg-blue-50 rounded-lg p-6 border border-blue-200">
+        <div class="mt-6 sm:mt-8 bg-blue-50 rounded-lg p-4 sm:p-6 border border-blue-200">
           <h3 class="text-lg font-semibold text-blue-800 mb-3">💡 Budget Tips</h3>
           <ul class="space-y-2 text-sm text-blue-700">
             <li class="flex items-start">

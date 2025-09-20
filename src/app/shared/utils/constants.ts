@@ -28,7 +28,9 @@ export const API_CONFIG = {
       SIGNUP: 'auth/signup',
       GOOGLE: 'auth/google',
       GITHUB: 'auth/github',
-      LOGOUT: 'auth/logout'
+      LOGOUT: 'auth/logout',
+      FORGOT_PASSWORD: 'auth/forgot-password',
+      RESET_PASSWORD: 'auth/reset-password'
     },
     USERS: {
       PROFILE: 'users/profile',
